@@ -39,6 +39,8 @@ const chkShowCompleted = document.getElementById('chk-show-completed');
 const cardGrid = document.getElementById('card-grid');
 const btnFinishRound = document.getElementById('btn-finish-round');
 const btnForceEndRound = document.getElementById('btn-force-end-round');
+const btnMarkAllCompleted = document.getElementById('btn-mark-all-completed');
+const btnCopyRemaining = document.getElementById('btn-copy-remaining');
 const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
 const connectionBadge = document.getElementById('connection-badge');
 
@@ -453,11 +455,86 @@ btnForceEndRound.addEventListener('click', () => {
   if (confirmForce) resetAndReturnToSetup(state.roundName);
 });
 
+// Mark every table as completed (with confirmation)
+function markAllCompleted() {
+  state.tables.forEach(t => { t.state = 'completed'; });
+  saveState();
+  renderTracker();
+}
+
+btnMarkAllCompleted.addEventListener('click', () => {
+  const confirmAll = confirm(`確定要將本輪 [${state.roundName}] 的所有桌號設為「已完成」？`);
+  if (confirmAll) markAllCompleted();
+});
+
+// ==========================================================================
+// Copy Remaining Tables Info
+// ==========================================================================
+
+// Build the remaining-tables info string from incomplete tables
+function buildRemainingInfo() {
+  const remaining = state.tables.filter(t => t.state !== 'completed');
+
+  const overtime = remaining
+    .filter(t => t.overtimeMinutes !== null)
+    .sort((a, b) => a.number - b.number)
+    .map(t => `${t.number}(+${t.overtimeMinutes}分)`);
+
+  const normal = remaining
+    .filter(t => t.overtimeMinutes === null)
+    .sort((a, b) => a.number - b.number)
+    .map(t => `${t.number}`);
+
+  const overtimeStr = overtime.length > 0 ? overtime.join('\n') : '無';
+  const normalStr = normal.length > 0 ? normal.join('\n') : '無';
+
+  const group = state.group || DEFAULT_GROUP;
+
+  return `${group}\n\n剩餘 ${remaining.length} 桌\n\n剩餘加時桌：\n${overtimeStr}\n\n剩餘一般桌：\n${normalStr}`;
+}
+
+// Copy text to clipboard with fallback for non-secure / offline contexts
+async function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      // fall through to legacy fallback
+    }
+  }
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+btnCopyRemaining.addEventListener('click', async () => {
+  const info = buildRemainingInfo();
+  const ok = await copyToClipboard(info);
+  if (ok) {
+    alert(`已複製剩餘桌次資訊：\n${info}`);
+  } else {
+    alert(`複製失敗，請手動複製：\n${info}`);
+  }
+});
+
 // ==========================================================================
 // Initialization
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
   updateOnlineStatus();
   loadState();
+  restoreGroupSelection();
   registerServiceWorker();
 });
