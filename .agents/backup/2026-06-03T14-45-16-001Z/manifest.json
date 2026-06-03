@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "createdAt": "2026-06-03T14:45:21.480Z",
+  "scope": "project",
+  "operation": "change-to-agents",
+  "entries": [
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-apply.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-archive.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-bulk-archive.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-continue.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-explore.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-ff.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-new.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-onboard.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-propose.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-sync.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\commands\\opsx-verify.md",
+      "kind": "file",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-apply-change",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-archive-change",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-bulk-archive-change",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-continue-change",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-explore",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-ff-change",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-new-change",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-onboard",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-propose",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-sync-specs",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\skills\\openspec-verify-change",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.claude\\commands",
+      "kind": "symlink",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.codex\\prompts",
+      "kind": "symlink",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.gemini\\commands",
+      "kind": "symlink",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agent\\workflows",
+      "backupPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\backup\\2026-06-03T14-45-16-001Z\\Users\\Lee\\claude\\eor\\eor\\.agent\\workflows",
+      "kind": "dir",
+      "action": "backup"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\hooks",
+      "kind": "dir",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.claude\\hooks",
+      "kind": "symlink",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.claude\\skills",
+      "kind": "symlink",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.codex\\skills",
+      "kind": "symlink",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.gemini\\skills",
+      "kind": "symlink",
+      "action": "create"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agent\\skills",
+      "backupPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.agents\\backup\\2026-06-03T14-45-16-001Z\\Users\\Lee\\claude\\eor\\eor\\.agent\\skills",
+      "kind": "dir",
+      "action": "backup"
+    },
+    {
+      "originalPath": "C:\\Users\\Lee\\claude\\eor\\eor\\.github\\skills",
+      "kind": "symlink",
+      "action": "create"
+    }
+  ]
+}
