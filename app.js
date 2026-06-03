@@ -5,6 +5,7 @@
 // Global state structure
 let state = {
   roundName: '',
+  group: '大師A',
   startTable: 1,
   endTable: 50,
   tables: [] // Array of { number, state, assignedTime, overtimeMinutes }
@@ -14,8 +15,10 @@ let state = {
 let showOvertimeOnly = false;
 let longPressTriggered = false;
 
-// LocalStorage key
+// LocalStorage keys
 const STORAGE_KEY = 'ptcg_eor_tracker_state';
+const GROUP_STORAGE_KEY = 'ptcg_eor_group';
+const DEFAULT_GROUP = '大師A';
 
 // DOM Elements
 const setupView = document.getElementById('setup-view');
@@ -23,6 +26,7 @@ const trackerView = document.getElementById('tracker-view');
 const setupForm = document.getElementById('setup-form');
 const btnStart = document.getElementById('btn-start');
 const roundInput = document.getElementById('round-name');
+const groupSelect = document.getElementById('group-select');
 const startTableInput = document.getElementById('start-table');
 const endTableInput = document.getElementById('end-table');
 
@@ -89,6 +93,10 @@ function loadState() {
   if (data) {
     try {
       state = JSON.parse(data);
+      // Backward-compat: patch missing group field
+      if (state && state.group === undefined) {
+        state.group = localStorage.getItem(GROUP_STORAGE_KEY) || DEFAULT_GROUP;
+      }
       if (state && state.tables && state.tables.length > 0) {
         // Backward-compat: patch missing overtimeMinutes field
         state.tables.forEach(t => {
@@ -112,7 +120,19 @@ function showSetupView() {
   setupView.classList.remove('hidden');
   setupForm.reset();
   roundInput.value = state.roundName ? incrementRoundName(state.roundName) : 'R1';
+  restoreGroupSelection();
 }
+
+// Restore the group dropdown to the last chosen value (persisted across rounds)
+function restoreGroupSelection() {
+  const saved = localStorage.getItem(GROUP_STORAGE_KEY);
+  groupSelect.value = saved || DEFAULT_GROUP;
+}
+
+// Persist the group choice immediately so it survives round resets
+groupSelect.addEventListener('change', () => {
+  localStorage.setItem(GROUP_STORAGE_KEY, groupSelect.value);
+});
 
 function showTrackerView() {
   setupView.classList.add('hidden');
@@ -142,6 +162,8 @@ btnStart.addEventListener('click', () => {
   if (startVal > endVal) { alert('起始桌號不能大於結束桌號！'); return; }
 
   state.roundName = roundName;
+  state.group = groupSelect.value;
+  localStorage.setItem(GROUP_STORAGE_KEY, groupSelect.value);
   state.startTable = startVal;
   state.endTable = endVal;
   state.tables = [];
