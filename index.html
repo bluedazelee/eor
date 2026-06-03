@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PTCG EoR Helper</title>
+  <meta name="description" content="PTCG 賽事 End of Round 裁判桌次紀錄工具，支援離線與 PWA 快取。">
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="pokeball-icon">🔴</span>
+        <h1>PTCG EoR Helper</h1>
+      </div>
+      <div id="connection-badge" class="badge badge-online">● 在線</div>
+    </header>
+
+    <main class="app-main">
+      <!-- 畫面 1: 開始/設定畫面 -->
+      <section id="setup-view" class="view-panel">
+        <div class="card setup-card">
+          <h2>開啟新輪次</h2>
+          <p class="subtitle">設定您此輪負責監管的桌號範圍</p>
+          
+          <form id="setup-form" onsubmit="return false;">
+            <div class="input-group">
+              <label for="round-name">目前輪次</label>
+              <input type="text" id="round-name" placeholder="例如: R1, R2, 瑞士輪第一輪" value="R1" required autocomplete="off">
+            </div>
+            
+            <div class="range-group">
+              <div class="input-group">
+                <label for="start-table">起始桌號</label>
+                <input type="number" id="start-table" min="1" value="1" required autocomplete="off">
+              </div>
+              <div class="input-group">
+                <label for="end-table">結束桌號</label>
+                <input type="number" id="end-table" min="1" value="50" required autocomplete="off">
+              </div>
+            </div>
+            
+            <button type="button" id="btn-start" class="btn btn-primary btn-glow">開始紀錄</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- 畫面 2: 紀錄主畫面 -->
+      <section id="tracker-view" class="view-panel hidden">
+        <div class="dashboard-bar">
+          <div class="round-indicator">
+            <span class="label">當前輪次</span>
+            <span id="display-round" class="val">-</span>
+          </div>
+          
+          <div class="stats-info">
+            <div class="stats-text">
+              <span id="stats-complete-count">已完成 0 / 0 桌</span>
+              <span id="stats-percentage" class="percentage">(0%)</span>
+              <span class="stats-divider">|</span>
+              <span id="stats-remaining-count">剩餘 0 桌</span>
+            </div>
+            <div class="progress-bar-container">
+              <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+            </div>
+          </div>
+          
+          <div class="control-row">
+            <label class="checkbox-container">
+              <input type="checkbox" id="chk-show-completed" checked>
+              <span class="checkmark"></span>
+              顯示已完成桌號
+            </label>
+            <button id="btn-overtime-filter" class="btn-filter">只顯示加時桌</button>
+          </div>
+        </div>
+
+        <div id="card-grid" class="card-grid">
+          <!-- 卡片將在此處動態生成 -->
+        </div>
+
+        <div class="action-footer">
+          <button id="btn-finish-round" class="btn btn-success btn-disabled" disabled>
+            確認本輪處理完畢
+          </button>
+          <button id="btn-force-end-round" class="btn btn-warning">
+            強制結束本輪
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+  
+  <!-- Overtime marking popup (singleton) -->
+  <div id="overtime-popup" class="overtime-popup hidden">
+    <div class="overtime-popup-title">設定加時（分鐘）</div>
+    <div class="overtime-quick-btns">
+      <button class="btn-overtime-quick" data-value="3">+3</button>
+      <button class="btn-overtime-quick" data-value="6">+6</button>
+      <button class="btn-overtime-quick" data-value="9">+9</button>
+    </div>
+    <div class="overtime-custom-row">
+      <input type="number" id="overtime-custom-input" min="1" placeholder="自訂">
+      <button id="btn-overtime-confirm">確認</button>
+    </div>
+    <button id="btn-overtime-clear" class="btn-overtime-clear hidden">清除標記</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

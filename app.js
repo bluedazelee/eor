@@ -1,0 +1,441 @@
+// ==========================================================================
+// PTCG EoR Helper - Core Logic
+// ==========================================================================
+
+// Global state structure
+let state = {
+  roundName: '',
+  startTable: 1,
+  endTable: 50,
+  tables: [] // Array of { number, state, assignedTime, overtimeMinutes }
+};
+
+// UI state (not persisted)
+let showOvertimeOnly = false;
+let longPressTriggered = false;
+
+// LocalStorage key
+const STORAGE_KEY = 'ptcg_eor_tracker_state';
+
+// DOM Elements
+const setupView = document.getElementById('setup-view');
+const trackerView = document.getElementById('tracker-view');
+const setupForm = document.getElementById('setup-form');
+const btnStart = document.getElementById('btn-start');
+const roundInput = document.getElementById('round-name');
+const startTableInput = document.getElementById('start-table');
+const endTableInput = document.getElementById('end-table');
+
+const displayRound = document.getElementById('display-round');
+const statsCompleteCount = document.getElementById('stats-complete-count');
+const statsPercentage = document.getElementById('stats-percentage');
+const statsRemainingCount = document.getElementById('stats-remaining-count');
+const progressBarFill = document.getElementById('progress-bar-fill');
+const chkShowCompleted = document.getElementById('chk-show-completed');
+const cardGrid = document.getElementById('card-grid');
+const btnFinishRound = document.getElementById('btn-finish-round');
+const btnForceEndRound = document.getElementById('btn-force-end-round');
+const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
+const connectionBadge = document.getElementById('connection-badge');
+
+// Overtime popup elements
+const overtimePopup = document.getElementById('overtime-popup');
+const overtimeCustomInput = document.getElementById('overtime-custom-input');
+const btnOvertimeConfirm = document.getElementById('btn-overtime-confirm');
+const btnOvertimeClear = document.getElementById('btn-overtime-clear');
+
+// ==========================================================================
+// Service Worker Registration
+// ==========================================================================
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => {
+          console.log('Service Worker 註冊成功，範圍為:', reg.scope);
+        })
+        .catch(err => {
+          console.error('Service Worker 註冊失敗:', err);
+        });
+    });
+  }
+}
+
+// ==========================================================================
+// Connection Status Monitoring
+// ==========================================================================
+function updateOnlineStatus() {
+  if (navigator.onLine) {
+    connectionBadge.textContent = '● 在線';
+    connectionBadge.className = 'badge badge-online';
+  } else {
+    connectionBadge.textContent = '● 離線模式';
+    connectionBadge.className = 'badge badge-offline';
+  }
+}
+
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+// ==========================================================================
+// LocalStorage Persistence
+// ==========================================================================
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  if (data) {
+    try {
+      state = JSON.parse(data);
+      if (state && state.tables && state.tables.length > 0) {
+        // Backward-compat: patch missing overtimeMinutes field
+        state.tables.forEach(t => {
+          if (t.overtimeMinutes === undefined) t.overtimeMinutes = null;
+        });
+        showTrackerView();
+        renderTracker();
+      }
+    } catch (e) {
+      console.error('還原 LocalStorage 狀態失敗，已重設。', e);
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }
+}
+
+// ==========================================================================
+// View Transitions
+// ==========================================================================
+function showSetupView() {
+  trackerView.classList.add('hidden');
+  setupView.classList.remove('hidden');
+  setupForm.reset();
+  roundInput.value = state.roundName ? incrementRoundName(state.roundName) : 'R1';
+}
+
+function showTrackerView() {
+  setupView.classList.add('hidden');
+  trackerView.classList.remove('hidden');
+}
+
+function incrementRoundName(current) {
+  const match = current.match(/^(.*?)(\d+)$/);
+  if (match) {
+    return `${match[1]}${parseInt(match[2], 10) + 1}`;
+  }
+  return current;
+}
+
+// ==========================================================================
+// Core Tracker Workflows
+// ==========================================================================
+
+btnStart.addEventListener('click', () => {
+  const roundName = roundInput.value.trim();
+  const startVal = parseInt(startTableInput.value, 10);
+  const endVal = parseInt(endTableInput.value, 10);
+
+  if (!roundName) { alert('請輸入輪次名稱！'); return; }
+  if (isNaN(startVal) || startVal < 1) { alert('起始桌號必須是正整數！'); return; }
+  if (isNaN(endVal) || endVal < 1) { alert('結束桌號必須是正整數！'); return; }
+  if (startVal > endVal) { alert('起始桌號不能大於結束桌號！'); return; }
+
+  state.roundName = roundName;
+  state.startTable = startVal;
+  state.endTable = endVal;
+  state.tables = [];
+
+  for (let i = startVal; i <= endVal; i++) {
+    state.tables.push({
+      number: i,
+      state: 'active',
+      assignedTime: null,
+      overtimeMinutes: null
+    });
+  }
+
+  saveState();
+  showTrackerView();
+  renderTracker();
+});
+
+// Render the entire dashboard & table grid
+function renderTracker() {
+  displayRound.textContent = state.roundName;
+  cardGrid.innerHTML = '';
+
+  let completedCount = 0;
+  let assignedCount = 0;
+  let activeCount = 0;
+  const totalCount = state.tables.length;
+
+  const showCompleted = chkShowCompleted.checked;
+
+  state.tables.forEach(table => {
+    if (table.state === 'completed') completedCount++;
+    else if (table.state === 'assigned') assignedCount++;
+    else activeCount++;
+
+    // Compound visibility filter: overtime AND completed filters (AND)
+    const passesOvertimeFilter = showOvertimeOnly ? table.overtimeMinutes !== null : true;
+    const passesCompletedFilter = showCompleted ? true : table.state !== 'completed';
+    if (!passesOvertimeFilter || !passesCompletedFilter) return;
+
+    const card = document.createElement('div');
+    card.className = `table-card state-${table.state}`;
+    card.dataset.num = table.number;
+
+    const numSpan = document.createElement('span');
+    numSpan.className = 'num';
+    numSpan.textContent = String(table.number).padStart(2, '0');
+    card.appendChild(numSpan);
+
+    const statusSpan = document.createElement('span');
+    statusSpan.className = 'status-txt';
+    if (table.state === 'active') {
+      statusSpan.textContent = '尚未結束';
+    } else if (table.state === 'assigned') {
+      statusSpan.textContent = '已分配';
+      if (table.assignedTime) {
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'time-stamp';
+        timeSpan.textContent = table.assignedTime;
+        card.appendChild(timeSpan);
+      }
+    } else {
+      statusSpan.textContent = '已完成';
+    }
+    card.appendChild(statusSpan);
+
+    // Overtime badge
+    if (table.overtimeMinutes !== null) {
+      const badge = document.createElement('span');
+      badge.className = 'overtime-badge';
+      badge.textContent = `+${table.overtimeMinutes}分`;
+      card.appendChild(badge);
+    }
+
+    // Click: cycle state (skip if long press just fired)
+    card.addEventListener('click', () => {
+      if (longPressTriggered) {
+        longPressTriggered = false;
+        return;
+      }
+      cycleCardState(table.number);
+    });
+
+    // Long press: open overtime popup
+    attachLongPress(card, table.number);
+
+    cardGrid.appendChild(card);
+  });
+
+  // Metrics
+  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  statsCompleteCount.textContent = `已完成 ${completedCount} / ${totalCount} 桌`;
+  statsPercentage.textContent = `(${progressPercent}%)`;
+  statsRemainingCount.textContent = `剩餘 ${totalCount - completedCount} 桌`;
+  progressBarFill.style.width = `${progressPercent}%`;
+
+  if (completedCount === totalCount && totalCount > 0) {
+    btnFinishRound.disabled = false;
+    btnFinishRound.className = 'btn btn-success';
+  } else {
+    btnFinishRound.disabled = true;
+    btnFinishRound.className = 'btn btn-disabled';
+  }
+}
+
+// Cycle states: active -> assigned -> completed -> active
+function cycleCardState(tableNumber) {
+  const table = state.tables.find(t => t.number === tableNumber);
+  if (!table) return;
+
+  if (table.state === 'active') {
+    table.state = 'assigned';
+    const now = new Date();
+    table.assignedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  } else if (table.state === 'assigned') {
+    table.state = 'completed';
+  } else {
+    table.state = 'active';
+    table.assignedTime = null;
+  }
+
+  saveState();
+  renderTracker();
+}
+
+chkShowCompleted.addEventListener('change', () => {
+  renderTracker();
+});
+
+// ==========================================================================
+// Long Press Detection
+// ==========================================================================
+function attachLongPress(cardElement, tableNumber) {
+  let pressTimer = null;
+  let startX = 0;
+  let startY = 0;
+
+  cardElement.addEventListener('pointerdown', e => {
+    startX = e.clientX;
+    startY = e.clientY;
+    pressTimer = setTimeout(() => {
+      pressTimer = null;
+      longPressTriggered = true;
+      showOvertimePopup(tableNumber, cardElement);
+    }, 500);
+  });
+
+  const cancel = () => {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+  };
+
+  cardElement.addEventListener('pointerup', cancel);
+  cardElement.addEventListener('pointercancel', cancel);
+  cardElement.addEventListener('pointermove', e => {
+    if (pressTimer) {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.sqrt(dx * dx + dy * dy) > 10) cancel();
+    }
+  });
+}
+
+// ==========================================================================
+// Overtime Marking
+// ==========================================================================
+function setOvertime(tableNumber, value) {
+  const table = state.tables.find(t => t.number === tableNumber);
+  if (!table) return;
+  table.overtimeMinutes = value;
+  saveState();
+  renderTracker();
+}
+
+let _popupTargetTable = null;
+let _outsideClickHandler = null;
+
+function showOvertimePopup(tableNumber, anchorElement) {
+  _popupTargetTable = tableNumber;
+
+  const table = state.tables.find(t => t.number === tableNumber);
+  const hasMark = table && table.overtimeMinutes !== null;
+
+  // Reset input
+  overtimeCustomInput.value = '';
+
+  // Show/hide clear button
+  btnOvertimeClear.classList.toggle('hidden', !hasMark);
+
+  overtimePopup.classList.remove('hidden');
+
+  // Position: anchor to card, clamp to viewport
+  const rect = anchorElement.getBoundingClientRect();
+  const popupW = 220;
+  const popupH = overtimePopup.offsetHeight || 160;
+  const margin = 8;
+
+  let left = rect.left + rect.width / 2 - popupW / 2;
+  let top = rect.bottom + margin;
+
+  // Clamp horizontally
+  left = Math.max(margin, Math.min(left, window.innerWidth - popupW - margin));
+  // Flip above card if not enough space below
+  if (top + popupH > window.innerHeight - margin) {
+    top = rect.top - popupH - margin;
+  }
+  top = Math.max(margin, top);
+
+  overtimePopup.style.left = `${left}px`;
+  overtimePopup.style.top = `${top}px`;
+
+  // Outside click closes popup (deferred so this event doesn't immediately close it)
+  setTimeout(() => {
+    _outsideClickHandler = e => {
+      if (!overtimePopup.contains(e.target)) {
+        closeOvertimePopup();
+      }
+    };
+    document.addEventListener('pointerdown', _outsideClickHandler);
+  }, 0);
+}
+
+function closeOvertimePopup() {
+  overtimePopup.classList.add('hidden');
+  if (_outsideClickHandler) {
+    document.removeEventListener('pointerdown', _outsideClickHandler);
+    _outsideClickHandler = null;
+  }
+  _popupTargetTable = null;
+}
+
+// Bind popup quick-select buttons
+document.querySelectorAll('.btn-overtime-quick').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const value = parseInt(btn.dataset.value, 10);
+    if (_popupTargetTable !== null) setOvertime(_popupTargetTable, value);
+    closeOvertimePopup();
+  });
+});
+
+// Bind confirm button
+btnOvertimeConfirm.addEventListener('click', () => {
+  const val = parseInt(overtimeCustomInput.value, 10);
+  if (!isNaN(val) && val >= 1) {
+    if (_popupTargetTable !== null) setOvertime(_popupTargetTable, val);
+    closeOvertimePopup();
+  }
+  // Invalid: stay open
+});
+
+// Bind clear button
+btnOvertimeClear.addEventListener('click', () => {
+  if (_popupTargetTable !== null) setOvertime(_popupTargetTable, null);
+  closeOvertimePopup();
+});
+
+// ==========================================================================
+// Overtime Filter Toggle
+// ==========================================================================
+btnOvertimeFilter.addEventListener('click', () => {
+  showOvertimeOnly = !showOvertimeOnly;
+  btnOvertimeFilter.classList.toggle('active', showOvertimeOnly);
+  renderTracker();
+});
+
+// ==========================================================================
+// Round Completion
+// ==========================================================================
+function resetAndReturnToSetup(roundName) {
+  state.tables = [];
+  localStorage.removeItem(STORAGE_KEY);
+  state.roundName = roundName;
+  showSetupView();
+}
+
+btnFinishRound.addEventListener('click', () => {
+  if (btnFinishRound.disabled) return;
+  const confirmReset = confirm(`確定本輪 [${state.roundName}] 負責的所有桌次皆已處理完畢？\n這將會清除當前紀錄並準備進行下一輪。`);
+  if (confirmReset) resetAndReturnToSetup(state.roundName);
+});
+
+btnForceEndRound.addEventListener('click', () => {
+  const incompleteCount = state.tables.filter(t => t.state !== 'completed').length;
+  const confirmForce = confirm(`確定要強制結束本輪 [${state.roundName}]？\n目前仍有 ${incompleteCount} 桌尚未完成。\n這將會清除當前紀錄並準備進行下一輪。`);
+  if (confirmForce) resetAndReturnToSetup(state.roundName);
+});
+
+// ==========================================================================
+// Initialization
+// ==========================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  updateOnlineStatus();
+  loadState();
+  registerServiceWorker();
+});

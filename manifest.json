@@ -1,0 +1,24 @@
+{
+  "name": "PTCG EoR Helper",
+  "short_name": "PTCG EoR",
+  "description": "寶可夢卡牌 (PTCG) 賽事 End of Round 裁判桌次紀錄工具，支援完全離線使用與 PWA 安裝。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b0b16",
+  "theme_color": "#1a1a2e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
