@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>PTCG EoR Helper — Icon Generator</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #0b0b16;
+      color: #f1f2f6;
+      padding: 32px;
+      margin: 0;
+    }
+    h1 { color: #a78bfa; margin: 0 0 8px; }
+    p { color: #a4b0be; margin: 0 0 32px; font-size: 13px; }
+    .sizes { display: flex; gap: 40px; align-items: flex-end; flex-wrap: wrap; }
+    .icon-block { text-align: center; }
+    .icon-block canvas {
+      display: block;
+      image-rendering: pixelated;
+      border: 1px solid #7c3aed;
+      margin: 0 auto;
+    }
+    .label { margin-top: 8px; font-size: 12px; color: #a4b0be; }
+    button {
+      display: block;
+      margin-top: 8px;
+      padding: 6px 14px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    button:hover { background: #7c3aed; }
+    .download-all {
+      margin-top: 40px;
+      padding: 12px 28px;
+      font-size: 14px;
+      background: #10b981;
+    }
+    .download-all:hover { background: #059669; }
+    .note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #7f8c8d;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>PTCG EoR Helper — Icon Generator</h1>
+  <p>像素風六邊形 badge 圖示。下載後覆蓋 <code>icons/</code> 目錄。</p>
+  <div id="previews" class="sizes"></div>
+  <button class="download-all" onclick="downloadAll()">⬇ Download All (icon-32 / icon-192 / icon-512)</button>
+  <div class="note">
+    下載後：將 icon-32.png、icon-192.png、icon-512.png 放入 <code>icons/</code> 目錄<br>
+    設計修改：編輯此檔案的 FONT / COLORS 常數後重新整理即可重新生成
+  </div>
+
+  <script>
+    // ── Design tokens ────────────────────────────────────────────────────────
+    const COLORS = {
+      bg:     '#0b0b16',            // outer background (matches app)
+      hex:    '#4f46e5',            // hexagon fill (accent-blue)
+      border: '#7c3aed',            // hexagon border layer
+      grid:   'rgba(99,102,241,0.6)', // tracker grid lines inside hex
+      text:   '#f1f2f6',            // EoR pixel text
+    };
+
+    // Pixel unit size on the 32×32 base canvas (2px = chunky pixels, readable when scaled)
+    const PX = 2;
+
+    // 3×5 pixel font matrices  (row-major, 1=filled, 0=empty)
+    const FONT = {
+      E: [
+        [1,1,1],
+        [1,0,0],
+        [1,1,0],
+        [1,0,0],
+        [1,1,1],
+      ],
+      o: [
+        [0,1,0],
+        [1,0,1],
+        [1,0,1],
+        [1,0,1],
+        [0,1,0],
+      ],
+      R: [
+        [1,1,0],
+        [1,0,1],
+        [1,1,0],
+        [1,0,1],
+        [1,0,1],
+      ],
+    };
+
+    // ── Drawing helpers ──────────────────────────────────────────────────────
+
+    // Build a flat-top hexagon path centered at (cx, cy) with outer radius r
+    function hexPath(ctx, cx, cy, r) {
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = (Math.PI / 3) * i; // 0°, 60°, 120°, 180°, 240°, 300°
+        const x = cx + r * Math.cos(a);
+        const y = cy + r * Math.sin(a);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    }
+
+    // Draw the full 32×32 base icon onto a new canvas and return it
+    function drawBase() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      const ctx = canvas.getContext('2d');
+
+      // Outer background
+      ctx.fillStyle = COLORS.bg;
+      ctx.fillRect(0, 0, 32, 32);
+
+      // Hexagon border (outer layer, radius 14 → 2px ring when inner is 12)
+      hexPath(ctx, 16, 16, 14);
+      ctx.fillStyle = COLORS.border;
+      ctx.fill();
+
+      // Hexagon fill (inner layer)
+      hexPath(ctx, 16, 16, 12);
+      ctx.fillStyle = COLORS.hex;
+      ctx.fill();
+
+      // Tracker grid lines clipped to inner hexagon
+      ctx.save();
+      hexPath(ctx, 16, 16, 12);
+      ctx.clip();
+      ctx.strokeStyle = COLORS.grid;
+      ctx.lineWidth = 1;
+      for (let x = 4; x < 32; x += 4) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 32);
+        ctx.stroke();
+      }
+      for (let y = 4; y < 32; y += 4) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(32, y);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // EoR pixel text — centered in canvas
+      const chars = ['E', 'o', 'R'];
+      const charW = 3 * PX;
+      const charH = 5 * PX;
+      const gap = PX;
+      const totalW = chars.length * charW + (chars.length - 1) * gap;
+      const startX = Math.round((32 - totalW) / 2);
+      const startY = Math.round((32 - charH) / 2);
+
+      ctx.fillStyle = COLORS.text;
+      chars.forEach((ch, i) => {
+        const ox = startX + i * (charW + gap);
+        FONT[ch].forEach((row, ry) => {
+          row.forEach((bit, rx) => {
+            if (bit) ctx.fillRect(ox + rx * PX, startY + ry * PX, PX, PX);
+          });
+        });
+      });
+
+      return canvas;
+    }
+
+    // Scale a canvas to targetSize using nearest-neighbor (preserves pixel art look)
+    function scaleNearest(src, targetSize) {
+      const canvas = document.createElement('canvas');
+      canvas.width = targetSize;
+      canvas.height = targetSize;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(src, 0, 0, targetSize, targetSize);
+      return canvas;
+    }
+
+    // ── Download helpers ─────────────────────────────────────────────────────
+
+    function canvasToBlob(canvas) {
+      return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    }
+
+    async function downloadCanvas(canvas, filename) {
+      const blob = await canvasToBlob(canvas);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function downloadAll() {
+      const base = drawBase();
+      await downloadCanvas(scaleNearest(base, 32),  'icon-32.png');
+      await downloadCanvas(scaleNearest(base, 192), 'icon-192.png');
+      await downloadCanvas(scaleNearest(base, 512), 'icon-512.png');
+    }
+
+    // ── Build preview grid ───────────────────────────────────────────────────
+
+    const PREVIEW_SIZES = [
+      { size: 32,  label: '32×32  (favicon)',      displaySize: 96  },
+      { size: 192, label: '192×192  (PWA small)',   displaySize: 192 },
+      { size: 512, label: '512×512  (PWA large)',   displaySize: 256 },
+    ];
+
+    const base = drawBase();
+    const container = document.getElementById('previews');
+
+    PREVIEW_SIZES.forEach(({ size, label, displaySize }) => {
+      const scaled = scaleNearest(base, size);
+      scaled.style.width  = displaySize + 'px';
+      scaled.style.height = displaySize + 'px';
+
+      const block = document.createElement('div');
+      block.className = 'icon-block';
+      block.appendChild(scaled);
+
+      const lbl = document.createElement('div');
+      lbl.className = 'label';
+      lbl.textContent = label;
+      block.appendChild(lbl);
+
+      const btn = document.createElement('button');
+      btn.textContent = `⬇ ${size}×${size}`;
+      btn.onclick = () => downloadCanvas(scaleNearest(base, size), `icon-${size}.png`);
+      block.appendChild(btn);
+
+      container.appendChild(block);
+    });
+  </script>
+</body>
+</html>

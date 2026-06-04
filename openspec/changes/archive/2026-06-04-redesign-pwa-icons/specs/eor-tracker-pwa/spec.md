@@ -1,16 +1,4 @@
-# Capability: eor-tracker-pwa
-
-## Purpose
-TBD
-
-## Requirements
-
-### Requirement: 離線資源快取
-系統 MUST 使用 Service Worker 快取所有必要的靜態資源，以確保在無網路連線 (離線) 時，網頁工具仍可正常載入與操作。
-
-#### Scenario: 離線時載入網頁
-- **WHEN** 裝置處於無網路連線狀態且使用者重新整理或開啟本工具網頁
-- **THEN** Service Worker SHALL 攔截請求並從快取 (Cache Storage) 中傳回 index.html、style.css 與 app.js，使網頁仍能正常載入
+## MODIFIED Requirements
 
 ### Requirement: 支援安裝至主畫面
 系統 MUST 提供 Web App Manifest 描述檔與合規的圖示設定，使得支援的瀏覽器（如 Chrome, Safari）能夠提示使用者安裝此工具。圖示 SHALL 包含 32×32（favicon）、192×192 與 512×512 三種尺寸，並以 `maskable` purpose 聲明，確保安全區合規。

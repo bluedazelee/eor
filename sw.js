@@ -2,13 +2,14 @@
 // PTCG EoR Helper - Service Worker (sw.js)
 // ==========================================================================
 
-const CACHE_NAME = 'ptcg-eor-v2';
+const CACHE_NAME = 'ptcg-eor-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
+  './icons/icon-32.png',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];
