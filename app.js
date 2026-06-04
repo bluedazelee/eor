@@ -50,6 +50,7 @@ const connectionBadge = document.getElementById('connection-badge');
 
 // Overtime popup elements
 const overtimePopup = document.getElementById('overtime-popup');
+const overtimePopupTitle = document.getElementById('overtime-popup-title');
 const overtimeCustomInput = document.getElementById('overtime-custom-input');
 const btnOvertimeConfirm = document.getElementById('btn-overtime-confirm');
 const btnOvertimeClear = document.getElementById('btn-overtime-clear');
@@ -313,7 +314,7 @@ function attachLongPress(cardElement, tableNumber) {
     pressTimer = setTimeout(() => {
       pressTimer = null;
       longPressTriggered = true;
-      showOvertimePopup(tableNumber, cardElement);
+      showOvertimePopup(tableNumber);
     }, 500);
   });
 
@@ -349,7 +350,7 @@ function setOvertime(tableNumber, value) {
 let _popupTargetTable = null;
 let _outsideClickHandler = null;
 
-function showOvertimePopup(tableNumber, anchorElement) {
+function showOvertimePopup(tableNumber) {
   _popupTargetTable = tableNumber;
 
   const table = state.tables.find(t => t.number === tableNumber);
@@ -358,30 +359,14 @@ function showOvertimePopup(tableNumber, anchorElement) {
   // Reset input
   overtimeCustomInput.value = '';
 
+  // Show table number in title
+  overtimePopupTitle.textContent = `設定加時 · 桌 ${tableNumber}`;
+
   // Show/hide clear button
   btnOvertimeClear.classList.toggle('hidden', !hasMark);
 
+  // Centered via CSS (.overtime-popup), no coordinate calculation needed
   overtimePopup.classList.remove('hidden');
-
-  // Position: anchor to card, clamp to viewport
-  const rect = anchorElement.getBoundingClientRect();
-  const popupW = 220;
-  const popupH = overtimePopup.offsetHeight || 160;
-  const margin = 8;
-
-  let left = rect.left + rect.width / 2 - popupW / 2;
-  let top = rect.bottom + margin;
-
-  // Clamp horizontally
-  left = Math.max(margin, Math.min(left, window.innerWidth - popupW - margin));
-  // Flip above card if not enough space below
-  if (top + popupH > window.innerHeight - margin) {
-    top = rect.top - popupH - margin;
-  }
-  top = Math.max(margin, top);
-
-  overtimePopup.style.left = `${left}px`;
-  overtimePopup.style.top = `${top}px`;
 
   // Outside click closes popup (deferred so this event doesn't immediately close it)
   setTimeout(() => {
