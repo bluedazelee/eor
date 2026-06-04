@@ -1,20 +1,65 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  ## 專案簡介
+  PTCG EoR Helper — 寶可夢卡牌 (PTCG) 賽事 End of Round 裁判桌次紀錄工具。
+  裁判在宣告 EoR 後，使用此工具追蹤每張桌子的完賽狀態，並可標記加時桌。
+  支援完全離線使用，以 PWA 形式安裝至手機桌面。
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  ## 技術架構
+  - 純 Vanilla HTML + CSS + JavaScript，無任何前端框架或打包工具
+  - 單頁應用 (SPA)，兩個畫面：setup-view（設定）、tracker-view（紀錄主畫面）
+  - 資料持久化：localStorage（key: `ptcg_eor_tracker_state`、`ptcg_eor_group`）
+  - PWA：Service Worker (`sw.js`) + Web App Manifest (`manifest.json`)
+  - 字型：Google Fonts — Outfit、Noto Sans TC
+
+  ## 狀態管理
+  全域 `state` 物件：
+  ```js
+  {
+    roundName: string,       // 輪次名稱，例如 "R1"
+    group: string,           // 組別，例如 "大師A"
+    startTable: number,
+    endTable: number,
+    tables: Array<{
+      number: number,
+      state: 'active' | 'assigned' | 'completed',
+      assignedTime: string | null,   // "HH:MM" 格式
+      overtimeMinutes: number | null
+    }>
+  }
+  ```
+  桌號狀態機：active → assigned（記錄分配時間）→ completed → active（點擊循環）
+  長按桌號卡片：開啟加時 popup，可設定 +3 / +6 / +9 或自訂分鐘數
+
+  ## 組別選項
+  大師A、大師B、大師C、大師D、大師E、大師F、大師G
+  少年A、少年B
+  孩童A、孩童B
+
+  ## UI 語言
+  介面使用繁體中文 (zh-Hant)；程式碼變數與函式名稱使用英文
+
+  ## 主要功能
+  - 設定輪次名稱、組別、桌號範圍後開始紀錄
+  - 桌號卡片顯示狀態（尚未結束 / 已分配 / 已完成）與加時標記
+  - 進度條與統計數字（已完成 N / 總計 M 桌）
+  - 篩選：只顯示加時桌、隱藏已完成桌
+  - 全部設為已完成（含確認對話框）
+  - 複製剩餘桌次資訊到剪貼簿（格式：組別 → 剩餘加時桌 → 剩餘一般桌）
+  - 確認本輪完畢 / 強制結束本輪（均重置狀態並返回設定畫面）
+  - 在線/離線狀態顯示
+
+  ## 程式碼慣例
+  - 所有 DOM 元素在模組頂部一次性 querySelector，不在函式內重複查找
+  - 渲染邏輯集中在 `renderTracker()`，修改 state 後呼叫即可
+  - Commit message 使用 Conventional Commits (feat / fix / chore / refactor)
+  - 不使用任何 CSS 框架，樣式以 CSS 變數為設計 token
+
+rules:
+  proposal:
+    - 說明對使用者操作流程的影響
+    - 若涉及 PWA 快取，需提及 sw.js 是否需要更新版本號
+  tasks:
+    - 每個 task 限定在單一檔案或單一功能範疇內
+    - 若需新增 UI 元素，task 需分為「HTML 結構」、「CSS 樣式」、「JS 邏輯」三步
