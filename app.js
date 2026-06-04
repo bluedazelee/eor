@@ -41,6 +41,10 @@ const btnFinishRound = document.getElementById('btn-finish-round');
 const btnForceEndRound = document.getElementById('btn-force-end-round');
 const btnMarkAllCompleted = document.getElementById('btn-mark-all-completed');
 const btnCopyRemaining = document.getElementById('btn-copy-remaining');
+const copyMenuPopup = document.getElementById('copy-menu-popup');
+const btnCopyRange = document.getElementById('btn-copy-range');
+const btnCopyOvertime = document.getElementById('btn-copy-overtime');
+const btnCopyDetail = document.getElementById('btn-copy-detail');
 const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
 const connectionBadge = document.getElementById('connection-badge');
 
@@ -471,6 +475,20 @@ btnMarkAllCompleted.addEventListener('click', () => {
 // Copy Remaining Tables Info
 // ==========================================================================
 
+function buildRangeInfo() {
+  const group = state.group || DEFAULT_GROUP;
+  return `${group} ${state.roundName} ${state.startTable}~${state.endTable}`;
+}
+
+// Returns overtime-tables string, or null if none exist
+function buildOvertimeInfo() {
+  const overtime = state.tables
+    .filter(t => t.state !== 'completed' && t.overtimeMinutes !== null)
+    .sort((a, b) => a.number - b.number)
+    .map(t => `${t.number}(+${t.overtimeMinutes}分)`);
+  return overtime.length > 0 ? overtime.join('\n') : null;
+}
+
 // Build the remaining-tables info string from incomplete tables
 function buildRemainingInfo() {
   const remaining = state.tables.filter(t => t.state !== 'completed');
@@ -488,9 +506,7 @@ function buildRemainingInfo() {
   const overtimeStr = overtime.length > 0 ? overtime.join('\n') : '無';
   const normalStr = normal.length > 0 ? normal.join('\n') : '無';
 
-  const group = state.group || DEFAULT_GROUP;
-
-  return `${group}\n\n剩餘 ${remaining.length} 桌\n\n剩餘加時桌：\n${overtimeStr}\n\n剩餘一般桌：\n${normalStr}`;
+  return `${buildRangeInfo()}\n\n剩餘 ${remaining.length} 桌\n\n剩餘加時桌：\n${overtimeStr}\n\n剩餘一般桌：\n${normalStr}`;
 }
 
 // Copy text to clipboard with fallback for non-secure / offline contexts
@@ -519,7 +535,53 @@ async function copyToClipboard(text) {
   }
 }
 
-btnCopyRemaining.addEventListener('click', async () => {
+function showCopyMenu() {
+  copyMenuPopup.style.display = 'flex';
+}
+
+function hideCopyMenu() {
+  copyMenuPopup.style.display = 'none';
+}
+
+btnCopyRemaining.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (copyMenuPopup.style.display === 'none') {
+    showCopyMenu();
+  } else {
+    hideCopyMenu();
+  }
+});
+
+btnCopyRange.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  const info = buildRangeInfo();
+  const ok = await copyToClipboard(info);
+  if (ok) {
+    alert(`已複製剩餘桌次資訊：\n${info}`);
+  } else {
+    alert(`複製失敗，請手動複製：\n${info}`);
+  }
+  hideCopyMenu();
+});
+
+btnCopyOvertime.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  const info = buildOvertimeInfo();
+  if (info === null) {
+    alert('目前無加時桌');
+  } else {
+    const ok = await copyToClipboard(info);
+    if (ok) {
+      alert(`已複製剩餘桌次資訊：\n${info}`);
+    } else {
+      alert(`複製失敗，請手動複製：\n${info}`);
+    }
+  }
+  hideCopyMenu();
+});
+
+btnCopyDetail.addEventListener('click', async (e) => {
+  e.stopPropagation();
   const info = buildRemainingInfo();
   const ok = await copyToClipboard(info);
   if (ok) {
@@ -527,6 +589,11 @@ btnCopyRemaining.addEventListener('click', async () => {
   } else {
     alert(`複製失敗，請手動複製：\n${info}`);
   }
+  hideCopyMenu();
+});
+
+document.addEventListener('click', () => {
+  hideCopyMenu();
 });
 
 // ==========================================================================
