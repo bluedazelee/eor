@@ -70,7 +70,78 @@
             </div>
             
             <button type="button" id="btn-start" class="btn btn-primary btn-glow">開始紀錄</button>
+            <button type="button" id="btn-help" class="btn btn-secondary">使用說明</button>
           </form>
+        </div>
+      </section>
+
+      <!-- 畫面 3: 使用說明 -->
+      <section id="help-view" class="view-panel hidden">
+        <div class="help-header">
+          <button id="btn-help-back" class="btn-back">← 返回</button>
+          <h2>使用說明</h2>
+        </div>
+        <div class="help-content">
+
+          <div class="help-section">
+            <div class="help-section-title">一、開局設定</div>
+            <div class="help-item"><span class="help-item-label">輪次名稱</span><span>輸入如 R1、R2，下一輪會自動遞增數字</span></div>
+            <div class="help-item"><span class="help-item-label">組別</span><span>選擇負責的組別，上次選擇會被記住</span></div>
+            <div class="help-item"><span class="help-item-label">桌號範圍</span><span>設定起始與結束桌號，按「開始紀錄」進入追蹤畫面</span></div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">二、桌次狀態管理</div>
+            <div class="help-item">
+              <span class="help-item-label">單點卡片</span>
+              <span>循環切換三種狀態：<br>
+                <span class="state-chip state-chip-active">尚未結束</span> →
+                <span class="state-chip state-chip-assigned">已分配</span> →
+                <span class="state-chip state-chip-completed">已完成</span>
+              </span>
+            </div>
+            <div class="help-tip">切換到「已分配」時，卡片會自動記錄當前時間（HH:MM）</div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">三、加時桌標記</div>
+            <div class="help-item"><span class="help-item-label">長按卡片</span><span>按住 0.5 秒，開啟加時設定彈窗</span></div>
+            <div class="help-item"><span class="help-item-label">快速選擇</span><span>+3 / +6 / +9 分鐘</span></div>
+            <div class="help-item"><span class="help-item-label">自訂分鐘</span><span>輸入任意正整數，按「確認」</span></div>
+            <div class="help-item"><span class="help-item-label">清除標記</span><span>已設定加時時，彈窗內會出現「清除標記」</span></div>
+            <div class="help-tip">加時桌卡片上會顯示 <span class="overtime-badge-demo">+6分</span> 橘色徽章</div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">四、儀表板統計</div>
+            <div class="help-item"><span class="help-item-label">進度條</span><span>即時顯示已完成桌數、百分比與剩餘桌數</span></div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">五、篩選與顯示控制</div>
+            <div class="help-item"><span class="help-item-label">顯示已完成</span><span>取消勾選可隱藏已完成桌次，專注於未完成部分</span></div>
+            <div class="help-item"><span class="help-item-label">只顯示加時桌</span><span>點選後只顯示有加時標記的桌次，可與上方篩選複合使用</span></div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">六、複製資訊</div>
+            <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製如「大師A組 R1 1~50」</span></div>
+            <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數</span></div>
+            <div class="help-item"><span class="help-item-label">詳細資訊</span><span>複製完整摘要：範圍、剩餘桌數、加時桌與一般桌清單</span></div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">七、結束本輪</div>
+            <div class="help-item"><span class="help-item-label">確認完畢</span><span>所有桌次皆為「已完成」後才可點擊，清除紀錄並準備下一輪</span></div>
+            <div class="help-item"><span class="help-item-label">強制結束</span><span>無論完成狀態均可強制結束，清除紀錄並準備下一輪</span></div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">八、離線與資料保存</div>
+            <div class="help-item"><span class="help-item-label">自動儲存</span><span>所有狀態即時存於裝置，重新整理或關閉後自動恢復</span></div>
+            <div class="help-item"><span class="help-item-label">離線可用</span><span>支援 PWA 安裝與完全離線使用，右上角顯示連線狀態</span></div>
+          </div>
+
         </div>
       </section>
 

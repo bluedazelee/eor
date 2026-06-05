@@ -40,6 +40,9 @@ const cardGrid = document.getElementById('card-grid');
 const btnFinishRound = document.getElementById('btn-finish-round');
 const btnForceEndRound = document.getElementById('btn-force-end-round');
 const btnMarkAllCompleted = document.getElementById('btn-mark-all-completed');
+const helpView = document.getElementById('help-view');
+const btnHelp = document.getElementById('btn-help');
+const btnHelpBack = document.getElementById('btn-help-back');
 const btnCopyRemaining = document.getElementById('btn-copy-remaining');
 const copyMenuPopup = document.getElementById('copy-menu-popup');
 const btnCopyRange = document.getElementById('btn-copy-range');
@@ -145,8 +148,21 @@ groupSelect.addEventListener('change', () => {
 
 function showTrackerView() {
   setupView.classList.add('hidden');
+  helpView.classList.add('hidden');
   trackerView.classList.remove('hidden');
 }
+
+function showHelpView() {
+  setupView.classList.add('hidden');
+  trackerView.classList.add('hidden');
+  helpView.classList.remove('hidden');
+}
+
+btnHelp.addEventListener('click', showHelpView);
+btnHelpBack.addEventListener('click', () => {
+  helpView.classList.add('hidden');
+  setupView.classList.remove('hidden');
+});
 
 function incrementRoundName(current) {
   const match = current.match(/^(.*?)(\d+)$/);
