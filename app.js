@@ -5,9 +5,9 @@
 // Global state structure
 let state = {
   roundName: '',
-  group: '大師A',
+  group: '大師A組',
   startTable: 1,
-  endTable: 50,
+  endTable: 200,
   tables: [] // Array of { number, state, assignedTime, overtimeMinutes }
 };
 
@@ -18,7 +18,7 @@ let longPressTriggered = false;
 // LocalStorage keys
 const STORAGE_KEY = 'ptcg_eor_tracker_state';
 const GROUP_STORAGE_KEY = 'ptcg_eor_group';
-const DEFAULT_GROUP = '大師A';
+const DEFAULT_GROUP = '大師A組';
 
 // DOM Elements
 const setupView = document.getElementById('setup-view');
