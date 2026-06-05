@@ -496,7 +496,7 @@ function buildRemainingInfo() {
     .map(t => `${t.number}`);
 
   const overtimeStr = overtime.length > 0 ? overtime.join('\n') : '無';
-  const normalStr = normal.length > 0 ? normal.join('\n') : '無';
+  const normalStr = normal.length > 0 ? normal.join(', ') : '無';
 
   return `${buildRangeInfo()}\n\n剩餘 ${remaining.length} 桌\n\n剩餘加時桌：\n${overtimeStr}\n\n剩餘一般桌：\n${normalStr}`;
 }
