@@ -493,18 +493,19 @@ body {
   background: #1e1e35;
   border: 1px solid rgba(63, 81, 181, 0.5);
   border-radius: var(--radius-md);
-  padding: 6px;
+  padding: 14px 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(63, 81, 181, 0.15);
-  min-width: 180px;
+  min-width: 200px;
+  max-width: calc(100vw - 16px);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
 }
 
 .copy-menu-item {
   width: 100%;
   padding: 9px 14px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-align: left;
   border: 1px solid transparent;
@@ -520,6 +521,21 @@ body {
   background: rgba(63, 81, 181, 0.15);
   border-color: rgba(63, 81, 181, 0.5);
   color: #8c9eff;
+}
+
+.copy-menu-close {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 2px;
+  padding-top: 12px;
+  opacity: 0.6;
+}
+
+.copy-menu-close:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: transparent;
+  border-top-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-sub);
+  opacity: 1;
 }
 
 /* Overtime filter toggle button */

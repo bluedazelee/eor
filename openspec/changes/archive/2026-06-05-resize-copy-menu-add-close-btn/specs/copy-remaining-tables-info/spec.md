@@ -1,9 +1,4 @@
-# Capability: copy-remaining-tables-info
-
-## Purpose
-TBD
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: 複製剩餘桌次資訊字串
 系統主畫面 MUST 提供一個「複製剩餘桌次資訊」按鈕。點擊後系統 SHALL 顯示一個選單，包含「本輪範圍」、「加時桌次」、「詳細資訊」、「關閉」四個選項。使用者選擇前三個選項後，系統依對應格式產生字串並複製到剪貼簿，並以 alert 顯示已複製的內容。使用者選擇「關閉」選項後，系統 SHALL 關閉選單且不執行任何複製。點擊選單外部區域 SHALL 同樣關閉選單而不執行任何複製。
@@ -70,4 +65,4 @@ TBD
 
 #### Scenario: 點擊選單外部關閉
 - **WHEN** 複製選單已顯示，使用者點擊選單以外的區域
-- **THEN** 系統 SHALL 同樣關閉選單且不執行任何複製
+- **THEN** 系統 SHALL 關閉選單且不執行任何複製

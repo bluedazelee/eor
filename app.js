@@ -45,6 +45,7 @@ const copyMenuPopup = document.getElementById('copy-menu-popup');
 const btnCopyRange = document.getElementById('btn-copy-range');
 const btnCopyOvertime = document.getElementById('btn-copy-overtime');
 const btnCopyDetail = document.getElementById('btn-copy-detail');
+const btnCopyClose = document.getElementById('btn-copy-close');
 const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
 const connectionBadge = document.getElementById('connection-badge');
 
@@ -574,6 +575,11 @@ btnCopyDetail.addEventListener('click', async (e) => {
   } else {
     alert(`複製失敗，請手動複製：\n${info}`);
   }
+  hideCopyMenu();
+});
+
+btnCopyClose.addEventListener('click', (e) => {
+  e.stopPropagation();
   hideCopyMenu();
 });
 
