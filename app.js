@@ -55,6 +55,7 @@ const overtimePopupTitle = document.getElementById('overtime-popup-title');
 const overtimeCustomInput = document.getElementById('overtime-custom-input');
 const btnOvertimeConfirm = document.getElementById('btn-overtime-confirm');
 const btnOvertimeClear = document.getElementById('btn-overtime-clear');
+const btnOvertimeClose = document.getElementById('btn-overtime-close');
 
 // ==========================================================================
 // Service Worker Registration
@@ -411,6 +412,11 @@ btnOvertimeConfirm.addEventListener('click', () => {
 // Bind clear button
 btnOvertimeClear.addEventListener('click', () => {
   if (_popupTargetTable !== null) setOvertime(_popupTargetTable, null);
+  closeOvertimePopup();
+});
+
+btnOvertimeClose.addEventListener('click', (e) => {
+  e.stopPropagation();
   closeOvertimePopup();
 });
 
