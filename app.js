@@ -1,5 +1,5 @@
 // ==========================================================================
-// PTCG EoR Helper - Core Logic
+// PTCG EoR Tracker - Core Logic
 // ==========================================================================
 
 // Global state structure
@@ -362,7 +362,7 @@ function showOvertimePopup(tableNumber) {
   overtimeCustomInput.value = '';
 
   // Show table number in title
-  overtimePopupTitle.textContent = `設定加時 · 桌 ${tableNumber}`;
+  overtimePopupTitle.querySelector('span').textContent = `設定加時 · ${tableNumber} 桌`;
 
   // Show/hide clear button
   btnOvertimeClear.classList.toggle('hidden', !hasMark);
