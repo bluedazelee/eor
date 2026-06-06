@@ -18,6 +18,7 @@ let longPressTriggered = false;
 // LocalStorage keys
 const STORAGE_KEY = 'ptcg_eor_tracker_state';
 const GROUP_STORAGE_KEY = 'ptcg_eor_group';
+const RANGE_STORAGE_KEY = 'ptcg_eor_range';
 const DEFAULT_GROUP = '大師A組';
 
 // DOM Elements
@@ -133,6 +134,7 @@ function showSetupView() {
   setupForm.reset();
   roundInput.value = state.roundName ? incrementRoundName(state.roundName) : 'R1';
   restoreGroupSelection();
+  restoreRangeSelection();
 }
 
 // Restore the group dropdown to the last chosen value (persisted across rounds)
@@ -145,6 +147,25 @@ function restoreGroupSelection() {
 groupSelect.addEventListener('change', () => {
   localStorage.setItem(GROUP_STORAGE_KEY, groupSelect.value);
 });
+
+// Persist the table range so it survives round resets (saved on round start)
+function saveRangeSelection(start, end) {
+  localStorage.setItem(RANGE_STORAGE_KEY, JSON.stringify({ start, end }));
+}
+
+// Pre-fill the range inputs with the last-used values as an editable default.
+// Falls back to the HTML defaults when there is no (or a corrupt) saved record.
+function restoreRangeSelection() {
+  const raw = localStorage.getItem(RANGE_STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const { start, end } = JSON.parse(raw);
+    if (Number.isInteger(start) && start >= 1) startTableInput.value = start;
+    if (Number.isInteger(end) && end >= 1) endTableInput.value = end;
+  } catch {
+    // Corrupt value — keep the HTML defaults
+  }
+}
 
 function showTrackerView() {
   setupView.classList.add('hidden');
@@ -191,6 +212,7 @@ btnStart.addEventListener('click', () => {
   localStorage.setItem(GROUP_STORAGE_KEY, groupSelect.value);
   state.startTable = startVal;
   state.endTable = endVal;
+  saveRangeSelection(startVal, endVal);
   state.tables = [];
 
   for (let i = startVal; i <= endVal; i++) {
