@@ -13,6 +13,7 @@ let state = {
 
 // UI state (not persisted)
 let showOvertimeOnly = false;
+let hideCompleted = false;
 let longPressTriggered = false;
 
 // Undo/Redo history (not persisted to localStorage)
@@ -41,7 +42,7 @@ const statsCompleteCount = document.getElementById('stats-complete-count');
 const statsPercentage = document.getElementById('stats-percentage');
 const statsRemainingCount = document.getElementById('stats-remaining-count');
 const progressBarFill = document.getElementById('progress-bar-fill');
-const chkShowCompleted = document.getElementById('chk-show-completed');
+const btnHideCompleted = document.getElementById('btn-hide-completed');
 const cardGrid = document.getElementById('card-grid');
 const btnFinishRound = document.getElementById('btn-finish-round');
 const btnForceEndRound = document.getElementById('btn-force-end-round');
@@ -283,8 +284,6 @@ function renderTracker() {
   let activeCount = 0;
   const totalCount = state.tables.length;
 
-  const showCompleted = chkShowCompleted.checked;
-
   state.tables.forEach(table => {
     if (table.state === 'completed') completedCount++;
     else if (table.state === 'assigned') assignedCount++;
@@ -292,7 +291,7 @@ function renderTracker() {
 
     // Compound visibility filter: overtime AND completed filters (AND)
     const passesOvertimeFilter = showOvertimeOnly ? table.overtimeMinutes !== null : true;
-    const passesCompletedFilter = showCompleted ? true : table.state !== 'completed';
+    const passesCompletedFilter = hideCompleted ? table.state !== 'completed' : true;
     if (!passesOvertimeFilter || !passesCompletedFilter) return;
 
     const card = document.createElement('div');
@@ -382,7 +381,9 @@ function cycleCardState(tableNumber) {
   renderTracker();
 }
 
-chkShowCompleted.addEventListener('change', () => {
+btnHideCompleted.addEventListener('click', () => {
+  hideCompleted = !hideCompleted;
+  btnHideCompleted.classList.toggle('active', hideCompleted);
   renderTracker();
 });
 

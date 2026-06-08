@@ -556,69 +556,6 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Custom Checkbox Design */
-.checkbox-container {
-  display: flex;
-  align-items: center;
-  position: relative;
-  padding-left: 28px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-sub);
-  user-select: none;
-}
-
-.checkbox-container input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
-}
-
-.checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 18px;
-  width: 18px;
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--card-border);
-  border-radius: 4px;
-  transition: all 0.25s ease;
-}
-
-.checkbox-container:hover input ~ .checkmark {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.checkbox-container input:checked ~ .checkmark {
-  background-color: #7c3aed;
-  border-color: #7c3aed;
-}
-
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
-}
-
-.checkbox-container input:checked ~ .checkmark:after {
-  display: block;
-}
-
-.checkbox-container .checkmark:after {
-  left: 5px;
-  top: 2px;
-  width: 5px;
-  height: 9px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
 /* Group of filter / action buttons on the right of the control row */
 .filter-btns {
   display: flex;
