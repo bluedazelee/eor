@@ -15,6 +15,11 @@ let state = {
 let showOvertimeOnly = false;
 let longPressTriggered = false;
 
+// Undo/Redo history (not persisted to localStorage)
+const MAX_UNDO = 20;
+let undoStack = [];
+let redoStack = [];
+
 // LocalStorage keys
 const STORAGE_KEY = 'ptcg_eor_tracker_state';
 const GROUP_STORAGE_KEY = 'ptcg_eor_group';
@@ -52,6 +57,8 @@ const btnCopyDetail = document.getElementById('btn-copy-detail');
 const btnCopyClose = document.getElementById('btn-copy-close');
 const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
 const connectionBadge = document.getElementById('connection-badge');
+const btnUndo = document.getElementById('btn-undo');
+const btnRedo = document.getElementById('btn-redo');
 
 // Overtime popup elements
 const overtimePopup = document.getElementById('overtime-popup');
@@ -117,12 +124,46 @@ function loadState() {
         });
         showTrackerView();
         renderTracker();
+        updateUndoRedoButtons();
       }
     } catch (e) {
       console.error('還原 LocalStorage 狀態失敗，已重設。', e);
       localStorage.removeItem(STORAGE_KEY);
     }
   }
+}
+
+// ==========================================================================
+// Undo / Redo
+// ==========================================================================
+function updateUndoRedoButtons() {
+  btnUndo.classList.toggle('disabled', undoStack.length === 0);
+  btnRedo.classList.toggle('disabled', redoStack.length === 0);
+}
+
+function commitState() {
+  undoStack.push(JSON.parse(JSON.stringify(state.tables)));
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  redoStack.length = 0;
+  updateUndoRedoButtons();
+}
+
+function undoAction() {
+  if (undoStack.length === 0) return;
+  redoStack.push(JSON.parse(JSON.stringify(state.tables)));
+  state.tables = undoStack.pop();
+  saveState();
+  renderTracker();
+  updateUndoRedoButtons();
+}
+
+function redoAction() {
+  if (redoStack.length === 0) return;
+  undoStack.push(JSON.parse(JSON.stringify(state.tables)));
+  state.tables = redoStack.pop();
+  saveState();
+  renderTracker();
+  updateUndoRedoButtons();
 }
 
 // ==========================================================================
@@ -224,8 +265,11 @@ btnStart.addEventListener('click', () => {
     });
   }
 
+  undoStack.length = 0;
+  redoStack.length = 0;
   saveState();
   showTrackerView();
+  updateUndoRedoButtons();
   renderTracker();
 });
 
@@ -321,6 +365,8 @@ function cycleCardState(tableNumber) {
   const table = state.tables.find(t => t.number === tableNumber);
   if (!table) return;
 
+  commitState();
+
   if (table.state === 'active') {
     table.state = 'assigned';
     const now = new Date();
@@ -382,6 +428,7 @@ function attachLongPress(cardElement, tableNumber) {
 function setOvertime(tableNumber, value) {
   const table = state.tables.find(t => t.number === tableNumber);
   if (!table) return;
+  commitState();
   table.overtimeMinutes = value;
   saveState();
   renderTracker();
@@ -459,6 +506,12 @@ btnOvertimeClose.addEventListener('click', (e) => {
 });
 
 // ==========================================================================
+// Undo / Redo Button Events
+// ==========================================================================
+btnUndo.addEventListener('click', undoAction);
+btnRedo.addEventListener('click', redoAction);
+
+// ==========================================================================
 // Overtime Filter Toggle
 // ==========================================================================
 btnOvertimeFilter.addEventListener('click', () => {
@@ -491,6 +544,7 @@ btnForceEndRound.addEventListener('click', () => {
 
 // Mark every table as completed (with confirmation)
 function markAllCompleted() {
+  commitState();
   state.tables.forEach(t => { t.state = 'completed'; });
   saveState();
   renderTracker();

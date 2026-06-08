@@ -131,13 +131,20 @@
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">七、結束本輪</div>
+            <div class="help-section-title">七、復原與重做</div>
+            <div class="help-item"><span class="help-item-label">↩ 復原</span><span>點擊可還原到上一次操作前的狀態，支援連續復原最多 20 步</span></div>
+            <div class="help-item"><span class="help-item-label">↪ 重做</span><span>復原後可重新套用被復原的操作；執行任何新操作後，重做紀錄將清除</span></div>
+            <div class="help-tip">按鈕呈半透明時表示目前無可復原／重做的步驟。重新整理頁面後，歷史記錄將清除，但桌次狀態仍會保留。</div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">八、結束本輪</div>
             <div class="help-item"><span class="help-item-label">確認完畢</span><span>所有桌次皆為「已完成」後才可點擊，清除紀錄並準備下一輪</span></div>
             <div class="help-item"><span class="help-item-label">強制結束</span><span>無論完成狀態均可強制結束，清除紀錄並準備下一輪</span></div>
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">八、離線與資料保存</div>
+            <div class="help-section-title">九、離線與資料保存</div>
             <div class="help-item"><span class="help-item-label">自動儲存</span><span>所有狀態即時存於裝置，重新整理或關閉後自動恢復</span></div>
             <div class="help-item"><span class="help-item-label">離線可用</span><span>支援 PWA 安裝與完全離線使用，右上角顯示連線狀態</span></div>
           </div>
@@ -166,6 +173,10 @@
           </div>
           
           <div class="control-row">
+            <div class="undo-redo-btns">
+              <button id="btn-undo" class="disabled" title="復原">↩</button>
+              <button id="btn-redo" class="disabled" title="重做">↪</button>
+            </div>
             <label class="checkbox-container">
               <input type="checkbox" id="chk-show-completed" checked>
               <span class="checkmark"></span>
