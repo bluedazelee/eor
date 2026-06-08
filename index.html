@@ -173,15 +173,17 @@
           </div>
           
           <div class="control-row">
-            <div class="undo-redo-btns">
-              <button id="btn-undo" class="disabled" title="復原">↩</button>
-              <button id="btn-redo" class="disabled" title="重做">↪</button>
+            <div class="left-controls">
+              <div class="undo-redo-btns">
+                <button id="btn-undo" class="disabled" title="復原">↩</button>
+                <button id="btn-redo" class="disabled" title="重做">↪</button>
+              </div>
+              <label class="checkbox-container">
+                <input type="checkbox" id="chk-show-completed" checked>
+                <span class="checkmark"></span>
+                顯示已完成桌號
+              </label>
             </div>
-            <label class="checkbox-container">
-              <input type="checkbox" id="chk-show-completed" checked>
-              <span class="checkmark"></span>
-              顯示已完成桌號
-            </label>
             <div class="filter-btns">
               <button id="btn-mark-all-completed" class="btn-filter btn-filter-complete">全部設為已完成</button>
               <button id="btn-copy-remaining" class="btn-filter btn-filter-copy">複製資訊</button>

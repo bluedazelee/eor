@@ -731,6 +731,12 @@ body {
 /* ==========================================================================
    Undo / Redo Buttons
    ========================================================================== */
+.left-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .undo-redo-btns {
   display: flex;
   align-items: center;
