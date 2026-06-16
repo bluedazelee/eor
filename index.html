@@ -133,8 +133,9 @@
 
           <div class="help-section">
             <div class="help-section-title">八、複製資訊</div>
-            <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製如「大師A組 R1 1~50」</span></div>
-            <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數</span></div>
+            <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製組別、輪次與桌號範圍，例：「大師A R1 1~50」</span></div>
+            <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數；無加時桌時顯示提示</span></div>
+            <div class="help-item"><span class="help-item-label">剩餘桌次</span><span>複製組別、輪次、桌號範圍及剩餘桌數，不含加時桌與一般桌明細</span></div>
             <div class="help-item"><span class="help-item-label">詳細資訊</span><span>複製完整摘要：範圍、剩餘桌數、加時桌與一般桌清單</span></div>
           </div>
 
@@ -198,6 +199,7 @@
               <div id="copy-menu-popup" class="copy-menu-popup" style="display:none">
                 <button id="btn-copy-range" class="copy-menu-item">本輪範圍</button>
                 <button id="btn-copy-overtime" class="copy-menu-item">加時桌次</button>
+                <button id="btn-copy-remaining-count" class="copy-menu-item">剩餘桌次</button>
                 <button id="btn-copy-detail" class="copy-menu-item">詳細資訊</button>
                 <button id="btn-copy-close" class="copy-menu-item copy-menu-close">關閉</button>
               </div>

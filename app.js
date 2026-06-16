@@ -53,6 +53,7 @@ const btnCopyRemaining = document.getElementById('btn-copy-remaining');
 const copyMenuPopup = document.getElementById('copy-menu-popup');
 const btnCopyRange = document.getElementById('btn-copy-range');
 const btnCopyOvertime = document.getElementById('btn-copy-overtime');
+const btnCopyRemainingCount = document.getElementById('btn-copy-remaining-count');
 const btnCopyDetail = document.getElementById('btn-copy-detail');
 const btnCopyClose = document.getElementById('btn-copy-close');
 const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
@@ -709,6 +710,11 @@ function buildRangeInfo() {
   return `${group} ${formatRound(state.roundNumber)} ${state.startTable}~${state.endTable}`;
 }
 
+function buildRemainingCountInfo() {
+  const remaining = state.tables.filter(t => t.state !== 'completed');
+  return `${buildRangeInfo()}\n\n剩餘 ${remaining.length} 桌`;
+}
+
 // Returns overtime-tables string, or null if none exist
 function buildOvertimeInfo() {
   const overtime = state.tables
@@ -786,7 +792,7 @@ btnCopyRange.addEventListener('click', async (e) => {
   const info = buildRangeInfo();
   const ok = await copyToClipboard(info);
   if (ok) {
-    alert(`已複製剩餘桌次資訊：\n${info}`);
+    alert(`已複製本輪範圍：\n${info}`);
   } else {
     alert(`複製失敗，請手動複製：\n${info}`);
   }
@@ -801,10 +807,22 @@ btnCopyOvertime.addEventListener('click', async (e) => {
   } else {
     const ok = await copyToClipboard(info);
     if (ok) {
-      alert(`已複製剩餘桌次資訊：\n${info}`);
+      alert(`已複製加時桌次：\n${info}`);
     } else {
       alert(`複製失敗，請手動複製：\n${info}`);
     }
+  }
+  hideCopyMenu();
+});
+
+btnCopyRemainingCount.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  const info = buildRemainingCountInfo();
+  const ok = await copyToClipboard(info);
+  if (ok) {
+    alert(`已複製剩餘桌次：\n${info}`);
+  } else {
+    alert(`複製失敗，請手動複製：\n${info}`);
   }
   hideCopyMenu();
 });
@@ -814,7 +832,7 @@ btnCopyDetail.addEventListener('click', async (e) => {
   const info = buildRemainingInfo();
   const ok = await copyToClipboard(info);
   if (ok) {
-    alert(`已複製剩餘桌次資訊：\n${info}`);
+    alert(`已複製詳細資訊：\n${info}`);
   } else {
     alert(`複製失敗，請手動複製：\n${info}`);
   }
