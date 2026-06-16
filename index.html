@@ -120,15 +120,13 @@
 
           <div class="help-section">
             <div class="help-section-title">七、批量設為已完成</div>
-            <div class="help-item">
-              <span class="help-item-label">範圍排除模式</span>
-              <span>輸入桌號範圍（起始～結束）與排除桌號，一次標記整段範圍中指定桌次以外的所有桌次為已完成<br>例：範圍 1～50，排除 22 23 25 → 標記 47 桌</span>
-            </div>
-            <div class="help-item">
-              <span class="help-item-label">指定桌號模式</span>
-              <span>直接輸入個別桌號，一次標記指定桌次為已完成<br>例：輸入 14 15 16 → 標記 3 桌</span>
-            </div>
-            <div class="help-tip">桌號以空格或逗號分隔均可；操作完成後可點擊「↩ 復原」一步還原整批標記</div>
+            <div class="help-item"><span class="help-item-label">進入選取模式</span><span>點擊「批量設為已完成」按鈕後，畫面進入選取模式，上方顯示操作列</span></div>
+            <div class="help-item"><span class="help-item-label">點選桌次</span><span>直接點擊桌號卡片切換選取狀態（綠框 ✓ 表示已選取），不影響桌次完成狀態</span></div>
+            <div class="help-item"><span class="help-item-label">全選未完成</span><span>一鍵選取目前顯示中所有尚未完成的桌次</span></div>
+            <div class="help-item"><span class="help-item-label">清除全選</span><span>取消所有已選取的桌次</span></div>
+            <div class="help-item"><span class="help-item-label">反選</span><span>將目前顯示的桌次中，已選者取消、未選者加入</span></div>
+            <div class="help-item"><span class="help-item-label">確認執行</span><span>將所有已選取的桌次標記為已完成；未選取的桌次狀態不變</span></div>
+            <div class="help-tip">操作完成後可點擊「↩ 復原」一步還原整批標記；搭配篩選器可快速定位目標桌次</div>
           </div>
 
           <div class="help-section">
@@ -213,6 +211,20 @@
           <div id="table-search-msg" class="table-search-msg hidden"></div>
         </div>
 
+        <!-- Selection Mode Action Bar -->
+        <div id="selection-action-bar" class="selection-action-bar hidden">
+          <div class="selection-bar-main">
+            <button id="btn-selection-cancel" class="btn-sel-cancel">取消</button>
+            <span id="selection-count" class="selection-count">已選 0 桌</span>
+            <button id="btn-selection-confirm" class="btn btn-primary btn-sel-confirm" disabled>確認執行</button>
+          </div>
+          <div class="selection-bar-shortcuts">
+            <button id="btn-select-all-incomplete" class="btn-sel-shortcut">全選未完成</button>
+            <button id="btn-select-clear" class="btn-sel-shortcut">清除全選</button>
+            <button id="btn-select-invert" class="btn-sel-shortcut">反選</button>
+          </div>
+        </div>
+
         <div id="card-grid" class="card-grid">
           <!-- 卡片將在此處動態生成 -->
         </div>
@@ -229,45 +241,6 @@
     </main>
   </div>
   
-  <!-- Batch Complete popup (bottom sheet) -->
-  <div id="batch-complete-popup" class="batch-complete-popup hidden">
-    <div class="batch-popup-content">
-      <div class="batch-popup-header">
-        <span>批量設為已完成</span>
-        <button id="btn-batch-close" class="btn-batch-close">✕</button>
-      </div>
-      <div class="batch-tabs">
-        <button id="tab-range" class="batch-tab active">範圍排除</button>
-        <button id="tab-specific" class="batch-tab">指定桌號</button>
-      </div>
-      <div id="batch-range-fields" class="batch-fields">
-        <div class="batch-field-row">
-          <label>桌號範圍</label>
-          <div class="batch-range-inputs">
-            <input type="number" id="batch-range-start" min="1" placeholder="起始">
-            <span class="batch-range-sep">～</span>
-            <input type="number" id="batch-range-end" min="1" placeholder="結束">
-          </div>
-        </div>
-        <div class="batch-field-row">
-          <label>排除桌號（空格或逗號分隔）</label>
-          <input type="text" id="batch-exclude" placeholder="例如：22 23 25" autocomplete="off">
-        </div>
-      </div>
-      <div id="batch-specific-fields" class="batch-fields hidden">
-        <div class="batch-field-row">
-          <label>桌號（空格或逗號分隔）</label>
-          <input type="text" id="batch-specific" placeholder="例如：14 15 16" autocomplete="off">
-        </div>
-      </div>
-      <div id="batch-preview-text" class="batch-preview">將標記 0 桌為已完成</div>
-      <div class="batch-actions">
-        <button id="btn-batch-cancel" class="btn btn-secondary">取消</button>
-        <button id="btn-batch-confirm" class="btn btn-primary" disabled>確認執行</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Overtime marking popup (singleton) -->
   <div id="overtime-popup" class="overtime-popup hidden">
     <div id="overtime-popup-title" class="overtime-popup-title"><span>設定加時（分鐘）</span><button id="btn-overtime-close" class="btn-overtime-close">✕</button></div>

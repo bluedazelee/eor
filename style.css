@@ -1022,72 +1022,74 @@ body {
 }
 
 /* ==========================================================================
-   Batch Complete Popup (Bottom Sheet)
+   Batch Complete — Selection Mode Action Bar
    ========================================================================== */
-.batch-complete-popup {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
+.selection-action-bar {
+  flex-shrink: 0;
+  background: #1e1e35;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  background: rgba(0, 0, 0, 0.55);
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
-.batch-complete-popup.hidden {
+.selection-action-bar.hidden {
   display: none;
 }
 
-.batch-popup-content {
-  background: #1e1e35;
-  border-top: 1px solid var(--card-border);
-  border-radius: 16px 16px 0 0;
-  padding: 20px 16px 28px;
+.selection-bar-main {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.batch-popup-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-sub);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.btn-batch-close {
-  background: none;
-  border: none;
-  color: var(--text-sub);
-  opacity: 0.6;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0;
-  line-height: 1;
-  font-family: inherit;
-}
-
-.btn-batch-close:hover {
-  opacity: 1;
-}
-
-/* Tabs */
-.batch-tabs {
-  display: flex;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.batch-tab {
-  flex: 1;
-  padding: 9px;
+.btn-sel-cancel {
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-sub);
   font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-sel-cancel:hover {
+  border-color: var(--card-hover-border);
+  color: var(--text-main);
+}
+
+.selection-count {
+  flex: 1;
+  text-align: center;
+  font-size: 0.85rem;
   font-weight: 700;
+  color: var(--color-completed);
+}
+
+.btn-sel-confirm {
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+
+.selection-bar-shortcuts {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-sel-shortcut {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-sm);
   background: transparent;
@@ -1095,94 +1097,30 @@ body {
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.batch-tab.active {
-  background: rgba(46, 213, 115, 0.12);
+.btn-sel-shortcut:hover {
   border-color: var(--color-completed);
   color: var(--color-completed);
-}
-
-/* Fields */
-.batch-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.batch-field-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.batch-field-row label {
-  font-size: 0.75rem;
-  color: var(--text-sub);
-  font-weight: 600;
-}
-
-.batch-range-inputs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.batch-range-sep {
-  color: var(--text-sub);
-  flex-shrink: 0;
-}
-
-.batch-range-inputs input {
-  flex: 1;
-  min-width: 0;
-}
-
-.batch-fields input[type="number"],
-.batch-fields input[type="text"] {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  color: #fff;
-  font-size: 1rem;
-  font-family: inherit;
-}
-
-.batch-fields input:focus {
-  outline: none;
-  border-color: var(--color-completed);
-}
-
-.batch-fields input::placeholder {
-  color: var(--color-text-dim);
-}
-
-/* Preview text */
-.batch-preview {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-completed);
-  text-align: center;
-  padding: 8px;
   background: rgba(46, 213, 115, 0.08);
-  border-radius: var(--radius-sm);
 }
 
-.batch-preview.zero {
-  color: var(--text-sub);
-  background: rgba(255, 255, 255, 0.04);
+/* Selected card state */
+.table-card-selected {
+  border-color: var(--color-completed) !important;
+  background: rgba(46, 213, 115, 0.12) !important;
 }
 
-/* Action buttons */
-.batch-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.batch-actions .btn {
-  flex: 1;
+.selection-check {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: var(--color-completed);
+  line-height: 1;
+  pointer-events: none;
 }
 
 /* ==========================================================================
