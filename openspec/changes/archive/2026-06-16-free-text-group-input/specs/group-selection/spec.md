@@ -1,9 +1,4 @@
-# Capability: group-selection
-
-## Purpose
-TBD
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: 入口畫面選擇所屬組別
 入口（設定）畫面 MUST 提供一個「組別」自由文字輸入欄位，作為必填欄位，供使用者輸入任意組別名稱。欄位預設為空字串。使用者點擊「開始紀錄」時，系統 SHALL 驗證欄位不為空（忽略前後空白），若為空則顯示錯誤提示並阻止開始。所輸入的組別名稱 SHALL 於開始紀錄時納入當前輪次狀態。
