@@ -25,7 +25,6 @@ let redoStack = [];
 const STORAGE_KEY = 'ptcg_eor_tracker_state';
 const GROUP_STORAGE_KEY = 'ptcg_eor_group';
 const RANGE_STORAGE_KEY = 'ptcg_eor_range';
-const DEFAULT_GROUP = '大師A組';
 
 // DOM Elements
 const setupView = document.getElementById('setup-view');
@@ -33,7 +32,7 @@ const trackerView = document.getElementById('tracker-view');
 const setupForm = document.getElementById('setup-form');
 const btnStart = document.getElementById('btn-start');
 const roundInput = document.getElementById('round-name');
-const groupSelect = document.getElementById('group-select');
+const groupInput = document.getElementById('group-input');
 const startTableInput = document.getElementById('start-table');
 const endTableInput = document.getElementById('end-table');
 
@@ -135,7 +134,7 @@ function loadState() {
       state = JSON.parse(data);
       // Backward-compat: patch missing group field
       if (state && state.group === undefined) {
-        state.group = localStorage.getItem(GROUP_STORAGE_KEY) || DEFAULT_GROUP;
+        state.group = localStorage.getItem(GROUP_STORAGE_KEY) || '';
       }
       if (state && state.tables && state.tables.length > 0) {
         // Backward-compat: patch missing overtimeMinutes field
@@ -201,12 +200,12 @@ function showSetupView() {
 // Restore the group dropdown to the last chosen value (persisted across rounds)
 function restoreGroupSelection() {
   const saved = localStorage.getItem(GROUP_STORAGE_KEY);
-  groupSelect.value = saved || DEFAULT_GROUP;
+  groupInput.value = saved || '';
 }
 
 // Persist the group choice immediately so it survives round resets
-groupSelect.addEventListener('change', () => {
-  localStorage.setItem(GROUP_STORAGE_KEY, groupSelect.value);
+groupInput.addEventListener('input', () => {
+  localStorage.setItem(GROUP_STORAGE_KEY, groupInput.value);
 });
 
 // Persist the table range so it survives round resets (saved on round start)
@@ -264,13 +263,14 @@ btnStart.addEventListener('click', () => {
   const endVal = parseInt(endTableInput.value, 10);
 
   if (!roundName) { alert('請輸入輪次名稱！'); return; }
+  if (!groupInput.value.trim()) { alert('請輸入組別！'); return; }
   if (isNaN(startVal) || startVal < 1) { alert('起始桌號必須是正整數！'); return; }
   if (isNaN(endVal) || endVal < 1) { alert('結束桌號必須是正整數！'); return; }
   if (startVal > endVal) { alert('起始桌號不能大於結束桌號！'); return; }
 
   state.roundName = roundName;
-  state.group = groupSelect.value;
-  localStorage.setItem(GROUP_STORAGE_KEY, groupSelect.value);
+  state.group = groupInput.value.trim();
+  localStorage.setItem(GROUP_STORAGE_KEY, groupInput.value.trim());
   state.startTable = startVal;
   state.endTable = endVal;
   saveRangeSelection(startVal, endVal);
@@ -707,7 +707,7 @@ tableSearchInput.addEventListener('input', e => handleTableSearch(e.target.value
 // ==========================================================================
 
 function buildRangeInfo() {
-  const group = state.group || DEFAULT_GROUP;
+  const group = state.group;
   return `${group} ${state.roundName} ${state.startTable}~${state.endTable}`;
 }
 
