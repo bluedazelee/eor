@@ -46,7 +46,7 @@ const btnHideCompleted = document.getElementById('btn-hide-completed');
 const cardGrid = document.getElementById('card-grid');
 const btnFinishRound = document.getElementById('btn-finish-round');
 const btnForceEndRound = document.getElementById('btn-force-end-round');
-const btnMarkAllCompleted = document.getElementById('btn-mark-all-completed');
+const btnBatchComplete = document.getElementById('btn-batch-complete');
 const helpView = document.getElementById('help-view');
 const btnHelp = document.getElementById('btn-help');
 const btnHelpBack = document.getElementById('btn-help-back');
@@ -60,6 +60,25 @@ const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
 const connectionBadge = document.getElementById('connection-badge');
 const btnUndo = document.getElementById('btn-undo');
 const btnRedo = document.getElementById('btn-redo');
+
+// Batch complete popup elements
+const batchCompletePopup = document.getElementById('batch-complete-popup');
+const tabRange = document.getElementById('tab-range');
+const tabSpecific = document.getElementById('tab-specific');
+const batchRangeFields = document.getElementById('batch-range-fields');
+const batchSpecificFields = document.getElementById('batch-specific-fields');
+const batchRangeStart = document.getElementById('batch-range-start');
+const batchRangeEnd = document.getElementById('batch-range-end');
+const batchExclude = document.getElementById('batch-exclude');
+const batchSpecific = document.getElementById('batch-specific');
+const batchPreviewText = document.getElementById('batch-preview-text');
+const btnBatchClose = document.getElementById('btn-batch-close');
+const btnBatchCancel = document.getElementById('btn-batch-cancel');
+const btnBatchConfirm = document.getElementById('btn-batch-confirm');
+
+// Search elements
+const tableSearchInput = document.getElementById('table-search-input');
+const tableSearchMsg = document.getElementById('table-search-msg');
 
 // Overtime popup elements
 const overtimePopup = document.getElementById('overtime-popup');
@@ -357,6 +376,10 @@ function renderTracker() {
     btnFinishRound.disabled = true;
     btnFinishRound.className = 'btn btn-disabled';
   }
+
+  if (tableSearchInput && tableSearchInput.value.trim()) {
+    handleTableSearch(tableSearchInput.value);
+  }
 }
 
 // Cycle states: active -> assigned -> completed -> active
@@ -543,18 +566,141 @@ btnForceEndRound.addEventListener('click', () => {
   if (confirmForce) resetAndReturnToSetup(state.roundName);
 });
 
-// Mark every table as completed (with confirmation)
-function markAllCompleted() {
-  commitState();
-  state.tables.forEach(t => { t.state = 'completed'; });
-  saveState();
-  renderTracker();
+
+// ==========================================================================
+// Batch Complete
+// ==========================================================================
+let batchMode = 'range'; // 'range' | 'specific'
+
+function parseTableNums(str) {
+  return str.split(/[\s,]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n) && n > 0);
 }
 
-btnMarkAllCompleted.addEventListener('click', () => {
-  const confirmAll = confirm(`確定要將本輪 [${state.roundName}] 的所有桌號設為「已完成」？`);
-  if (confirmAll) markAllCompleted();
+function calcBatchTargets() {
+  if (batchMode === 'range') {
+    const start = parseInt(batchRangeStart.value, 10);
+    const end = parseInt(batchRangeEnd.value, 10);
+    if (isNaN(start) || isNaN(end) || start > end) return [];
+    const excludeSet = new Set(parseTableNums(batchExclude.value));
+    return state.tables
+      .filter(t => t.number >= start && t.number <= end && !excludeSet.has(t.number))
+      .map(t => t.number);
+  } else {
+    const nums = new Set(parseTableNums(batchSpecific.value));
+    return state.tables.filter(t => nums.has(t.number)).map(t => t.number);
+  }
+}
+
+function updateBatchPreview() {
+  const targets = calcBatchTargets();
+  const count = targets.length;
+  if (count === 0) {
+    batchPreviewText.textContent = '將標記 0 桌為已完成';
+    batchPreviewText.classList.add('zero');
+    btnBatchConfirm.disabled = true;
+  } else {
+    batchPreviewText.textContent = `將標記 ${count} 桌為已完成`;
+    batchPreviewText.classList.remove('zero');
+    btnBatchConfirm.disabled = false;
+  }
+}
+
+function switchBatchTab(mode) {
+  batchMode = mode;
+  if (mode === 'range') {
+    tabRange.classList.add('active');
+    tabSpecific.classList.remove('active');
+    batchRangeFields.classList.remove('hidden');
+    batchSpecificFields.classList.add('hidden');
+    batchRangeStart.value = '';
+    batchRangeEnd.value = '';
+    batchExclude.value = '';
+  } else {
+    tabSpecific.classList.add('active');
+    tabRange.classList.remove('active');
+    batchSpecificFields.classList.remove('hidden');
+    batchRangeFields.classList.add('hidden');
+    batchSpecific.value = '';
+  }
+  updateBatchPreview();
+}
+
+function openBatchPopup() {
+  switchBatchTab('range');
+  batchCompletePopup.classList.remove('hidden');
+}
+
+function closeBatchPopup() {
+  batchCompletePopup.classList.add('hidden');
+}
+
+function executeBatchComplete() {
+  const targets = calcBatchTargets();
+  if (targets.length === 0) return;
+  const targetSet = new Set(targets);
+  commitState();
+  state.tables.forEach(t => { if (targetSet.has(t.number)) t.state = 'completed'; });
+  saveState();
+  renderTracker();
+  closeBatchPopup();
+}
+
+tabRange.addEventListener('click', () => switchBatchTab('range'));
+tabSpecific.addEventListener('click', () => switchBatchTab('specific'));
+
+[batchRangeStart, batchRangeEnd, batchExclude, batchSpecific].forEach(el => {
+  el.addEventListener('input', updateBatchPreview);
 });
+
+btnBatchComplete.addEventListener('click', openBatchPopup);
+btnBatchClose.addEventListener('click', closeBatchPopup);
+btnBatchCancel.addEventListener('click', closeBatchPopup);
+btnBatchConfirm.addEventListener('click', executeBatchComplete);
+
+batchCompletePopup.addEventListener('pointerdown', e => {
+  if (e.target === batchCompletePopup) closeBatchPopup();
+});
+
+// ==========================================================================
+// Table Search
+// ==========================================================================
+function clearSearchHighlight() {
+  document.querySelectorAll('.table-card-highlight').forEach(el => {
+    el.classList.remove('table-card-highlight');
+  });
+  tableSearchInput.classList.remove('search-error');
+  tableSearchMsg.textContent = '';
+  tableSearchMsg.classList.add('hidden');
+}
+
+function handleTableSearch(value) {
+  clearSearchHighlight();
+  const trimmed = value.trim();
+  if (!trimmed) return;
+
+  const num = parseInt(trimmed, 10);
+  if (isNaN(num)) return;
+
+  const table = state.tables.find(t => t.number === num);
+  if (!table) {
+    tableSearchInput.classList.add('search-error');
+    tableSearchMsg.textContent = `找不到桌號 ${num}`;
+    tableSearchMsg.classList.remove('hidden');
+    return;
+  }
+
+  const card = cardGrid.querySelector(`[data-num="${num}"]`);
+  if (!card) {
+    tableSearchMsg.textContent = `桌號 ${num} 目前被篩選器隱藏`;
+    tableSearchMsg.classList.remove('hidden');
+    return;
+  }
+
+  card.classList.add('table-card-highlight');
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+tableSearchInput.addEventListener('input', e => handleTableSearch(e.target.value));
 
 // ==========================================================================
 // Copy Remaining Tables Info

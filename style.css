@@ -1014,6 +1014,216 @@ body {
 }
 
 /* ==========================================================================
+   Batch Complete Popup (Bottom Sheet)
+   ========================================================================== */
+.batch-complete-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.batch-complete-popup.hidden {
+  display: none;
+}
+
+.batch-popup-content {
+  background: #1e1e35;
+  border-top: 1px solid var(--card-border);
+  border-radius: 16px 16px 0 0;
+  padding: 20px 16px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.batch-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-batch-close {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.btn-batch-close:hover {
+  opacity: 1;
+}
+
+/* Tabs */
+.batch-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.batch-tab {
+  flex: 1;
+  padding: 9px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-sub);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.batch-tab.active {
+  background: rgba(46, 213, 115, 0.12);
+  border-color: var(--color-completed);
+  color: var(--color-completed);
+}
+
+/* Fields */
+.batch-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.batch-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.batch-field-row label {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+.batch-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.batch-range-sep {
+  color: var(--text-sub);
+  flex-shrink: 0;
+}
+
+.batch-range-inputs input {
+  flex: 1;
+  min-width: 0;
+}
+
+.batch-fields input[type="number"],
+.batch-fields input[type="text"] {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.batch-fields input:focus {
+  outline: none;
+  border-color: var(--color-completed);
+}
+
+.batch-fields input::placeholder {
+  color: var(--color-text-dim);
+}
+
+/* Preview text */
+.batch-preview {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-completed);
+  text-align: center;
+  padding: 8px;
+  background: rgba(46, 213, 115, 0.08);
+  border-radius: var(--radius-sm);
+}
+
+.batch-preview.zero {
+  color: var(--text-sub);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Action buttons */
+.batch-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.batch-actions .btn {
+  flex: 1;
+}
+
+/* ==========================================================================
+   Table Search Bar
+   ========================================================================== */
+.table-search-bar {
+  flex-shrink: 0;
+  padding: 0 0 8px;
+}
+
+#table-search-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+#table-search-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+#table-search-input::placeholder {
+  color: var(--color-text-dim);
+}
+
+#table-search-input.search-error {
+  border-color: var(--color-active);
+}
+
+.table-search-msg {
+  font-size: 0.75rem;
+  color: var(--color-active);
+  padding: 4px 2px 0;
+}
+
+/* Card highlight (search result) */
+.table-card.table-card-highlight {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.4);
+}
+
+/* ==========================================================================
    Responsive adjustments
    ========================================================================== */
 @media (max-width: 480px) {
