@@ -4,7 +4,7 @@
 
 // Global state structure
 let state = {
-  roundName: '',
+  roundNumber: 0,
   group: '大師A組',
   startTable: 1,
   endTable: 200,
@@ -136,6 +136,11 @@ function loadState() {
       if (state && state.group === undefined) {
         state.group = localStorage.getItem(GROUP_STORAGE_KEY) || '';
       }
+      // Backward-compat: migrate old string roundName to roundNumber
+      if (state && state.roundNumber === undefined) {
+        const m = state.roundName && state.roundName.match(/(\d+)/);
+        state.roundNumber = m ? parseInt(m[1], 10) : 1;
+      }
       if (state && state.tables && state.tables.length > 0) {
         // Backward-compat: patch missing overtimeMinutes field
         state.tables.forEach(t => {
@@ -192,7 +197,7 @@ function showSetupView() {
   trackerView.classList.add('hidden');
   setupView.classList.remove('hidden');
   setupForm.reset();
-  roundInput.value = state.roundName ? incrementRoundName(state.roundName) : 'R1';
+  roundInput.value = (state.roundNumber || 0) + 1;
   restoreGroupSelection();
   restoreRangeSelection();
 }
@@ -245,30 +250,24 @@ btnHelpBack.addEventListener('click', () => {
   setupView.classList.remove('hidden');
 });
 
-function incrementRoundName(current) {
-  const match = current.match(/^(.*?)(\d+)$/);
-  if (match) {
-    return `${match[1]}${parseInt(match[2], 10) + 1}`;
-  }
-  return current;
-}
+function formatRound(n) { return `R${n}`; }
 
 // ==========================================================================
 // Core Tracker Workflows
 // ==========================================================================
 
 btnStart.addEventListener('click', () => {
-  const roundName = roundInput.value.trim();
+  const roundNumber = parseInt(roundInput.value, 10);
   const startVal = parseInt(startTableInput.value, 10);
   const endVal = parseInt(endTableInput.value, 10);
 
-  if (!roundName) { alert('請輸入輪次名稱！'); return; }
+  if (isNaN(roundNumber) || roundNumber < 1 || roundNumber > 20) { alert('輪次必須是 1 到 20 之間的整數！'); return; }
   if (!groupInput.value.trim()) { alert('請輸入組別！'); return; }
   if (isNaN(startVal) || startVal < 1) { alert('起始桌號必須是正整數！'); return; }
   if (isNaN(endVal) || endVal < 1) { alert('結束桌號必須是正整數！'); return; }
   if (startVal > endVal) { alert('起始桌號不能大於結束桌號！'); return; }
 
-  state.roundName = roundName;
+  state.roundNumber = roundNumber;
   state.group = groupInput.value.trim();
   localStorage.setItem(GROUP_STORAGE_KEY, groupInput.value.trim());
   state.startTable = startVal;
@@ -295,7 +294,7 @@ btnStart.addEventListener('click', () => {
 
 // Render the entire dashboard & table grid
 function renderTracker() {
-  displayRound.textContent = state.roundName;
+  displayRound.textContent = formatRound(state.roundNumber);
   cardGrid.innerHTML = '';
 
   let completedCount = 0;
@@ -547,23 +546,22 @@ btnOvertimeFilter.addEventListener('click', () => {
 // ==========================================================================
 // Round Completion
 // ==========================================================================
-function resetAndReturnToSetup(roundName) {
+function resetAndReturnToSetup() {
   state.tables = [];
   localStorage.removeItem(STORAGE_KEY);
-  state.roundName = roundName;
   showSetupView();
 }
 
 btnFinishRound.addEventListener('click', () => {
   if (btnFinishRound.disabled) return;
-  const confirmReset = confirm(`確定本輪 [${state.roundName}] 負責的所有桌次皆已處理完畢？\n這將會清除當前紀錄並準備進行下一輪。`);
-  if (confirmReset) resetAndReturnToSetup(state.roundName);
+  const confirmReset = confirm(`確定本輪 [${formatRound(state.roundNumber)}] 負責的所有桌次皆已處理完畢？\n這將會清除當前紀錄並準備進行下一輪。`);
+  if (confirmReset) resetAndReturnToSetup();
 });
 
 btnForceEndRound.addEventListener('click', () => {
   const incompleteCount = state.tables.filter(t => t.state !== 'completed').length;
-  const confirmForce = confirm(`確定要強制結束本輪 [${state.roundName}]？\n目前仍有 ${incompleteCount} 桌尚未完成。\n這將會清除當前紀錄並準備進行下一輪。`);
-  if (confirmForce) resetAndReturnToSetup(state.roundName);
+  const confirmForce = confirm(`確定要強制結束本輪 [${formatRound(state.roundNumber)}]？\n目前仍有 ${incompleteCount} 桌尚未完成。\n這將會清除當前紀錄並準備進行下一輪。`);
+  if (confirmForce) resetAndReturnToSetup();
 });
 
 
@@ -708,7 +706,7 @@ tableSearchInput.addEventListener('input', e => handleTableSearch(e.target.value
 
 function buildRangeInfo() {
   const group = state.group;
-  return `${group} ${state.roundName} ${state.startTable}~${state.endTable}`;
+  return `${group} ${formatRound(state.roundNumber)} ${state.startTable}~${state.endTable}`;
 }
 
 // Returns overtime-tables string, or null if none exist

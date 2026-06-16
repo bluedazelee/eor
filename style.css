@@ -431,6 +431,14 @@ body {
   line-height: 1.6;
 }
 
+.help-author {
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+  padding: 8px 4px 0;
+  opacity: 0.6;
+}
+
 .state-chip {
   display: inline-block;
   font-size: 0.75rem;
