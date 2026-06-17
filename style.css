@@ -76,7 +76,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 20px;
+  padding: 10px 20px;
   background: rgba(19, 19, 38, 0.4);
   border-bottom: 1px solid var(--card-border);
 }
@@ -88,12 +88,12 @@ body {
 }
 
 .pokeball-icon {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   animation: pulse 2s infinite ease-in-out;
 }
 
 .app-header h1 {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   background: linear-gradient(135deg, #fff 30%, var(--text-sub) 100%);
@@ -257,7 +257,7 @@ body {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: 14px 24px;
+  padding: 10px 20px;
   font-size: 1rem;
   font-weight: 700;
   border: none;
@@ -1235,9 +1235,6 @@ body {
   .app-container {
     border-left: none;
     border-right: none;
-  }
-  .app-header {
-    padding: 10px 20px;
   }
   .app-main {
     padding: 12px;
