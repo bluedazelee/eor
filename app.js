@@ -79,6 +79,8 @@ const tableSearchBar = document.querySelector('.table-search-bar');
 // Compact strip elements (batch mode)
 const compactRound = document.getElementById('compact-round');
 const compactProgress = document.getElementById('compact-progress');
+const btnHideCompletedCompact = document.getElementById('btn-hide-completed-compact');
+const btnOvertimeFilterCompact = document.getElementById('btn-overtime-filter-compact');
 
 // Overtime popup elements
 const overtimePopup = document.getElementById('overtime-popup');
@@ -433,6 +435,7 @@ btnHideCompleted.addEventListener('click', () => {
   hideCompleted = !hideCompleted;
   btnHideCompleted.classList.toggle('active', hideCompleted);
   renderTracker();
+  syncCompactFilterState();
 });
 
 // ==========================================================================
@@ -568,6 +571,7 @@ btnOvertimeFilter.addEventListener('click', () => {
   showOvertimeOnly = !showOvertimeOnly;
   btnOvertimeFilter.classList.toggle('active', showOvertimeOnly);
   renderTracker();
+  syncCompactFilterState();
 });
 
 // ==========================================================================
@@ -621,6 +625,7 @@ function enterSelectionMode() {
   trackerView.classList.add('selection-mode');
   selectionActionBar.classList.remove('hidden');
   updateSelectionBar();
+  syncCompactFilterState();
   renderTracker();
 }
 
@@ -682,6 +687,14 @@ function clearSearchHighlight() {
   tableSearchMsg.textContent = '';
   tableSearchMsg.classList.add('hidden');
 }
+
+function syncCompactFilterState() {
+  btnHideCompletedCompact.classList.toggle('active', hideCompleted);
+  btnOvertimeFilterCompact.classList.toggle('active', showOvertimeOnly);
+}
+
+btnHideCompletedCompact.addEventListener('click', () => btnHideCompleted.click());
+btnOvertimeFilterCompact.addEventListener('click', () => btnOvertimeFilter.click());
 
 function openSearchBar() {
   tableSearchBar.classList.remove('hidden');

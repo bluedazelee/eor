@@ -2,7 +2,7 @@
 // PTCG EoR Helper - Service Worker (sw.js)
 // ==========================================================================
 
-const CACHE_NAME = 'ptcg-eor-v12';
+const CACHE_NAME = 'ptcg-eor-v13';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

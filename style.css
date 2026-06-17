@@ -1021,10 +1021,11 @@ body {
   background: #1e1e35;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
+  padding: 5px 10px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
   margin-bottom: 8px;
 }
 
@@ -1032,12 +1033,6 @@ body {
   display: none;
 }
 
-.selection-bar-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
 
 .btn-sel-cancel {
   background: none;
@@ -1047,7 +1042,7 @@ body {
   font-size: 0.8rem;
   font-weight: 600;
   font-family: inherit;
-  padding: 6px 12px;
+  padding: 5px 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -1068,18 +1063,13 @@ body {
 
 .btn-sel-confirm {
   font-size: 0.8rem;
-  padding: 6px 14px;
+  padding: 5px 10px;
   white-space: nowrap;
 }
 
-.selection-bar-shortcuts {
-  display: flex;
-  gap: 6px;
-}
 
 .btn-sel-shortcut {
-  flex: 1;
-  padding: 6px 4px;
+  padding: 5px 6px;
   font-size: 0.72rem;
   font-weight: 600;
   border: 1px solid var(--card-border);
@@ -1122,14 +1112,27 @@ body {
   display: none;
   flex-shrink: 0;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 10px;
   background: rgba(19, 19, 38, 0.5);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-sm);
   margin-bottom: 8px;
   font-size: 0.9rem;
   font-weight: 700;
+}
+
+.compact-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.compact-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .compact-round {

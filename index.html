@@ -213,9 +213,21 @@
         </div>
 
         <div class="dashboard-compact-strip">
-          <span class="compact-round" id="compact-round">R-</span>
-          <span class="compact-sep">・</span>
-          <span class="compact-progress" id="compact-progress">0/0</span>
+          <div class="compact-info">
+            <span class="compact-round" id="compact-round">R-</span>
+            <span class="compact-sep">・</span>
+            <span class="compact-progress" id="compact-progress">0/0</span>
+          </div>
+          <div class="compact-filters">
+            <button id="btn-hide-completed-compact" class="btn-filter" data-filter="hide-completed">
+              <span class="label-long">隱藏完成</span>
+              <span class="label-short">隱藏</span>
+            </button>
+            <button id="btn-overtime-filter-compact" class="btn-filter" data-filter="overtime">
+              <span class="label-long">只顯示加時</span>
+              <span class="label-short">加時</span>
+            </button>
+          </div>
         </div>
 
         <div class="table-search-bar hidden">
@@ -225,22 +237,21 @@
 
         <!-- Selection Mode Action Bar -->
         <div id="selection-action-bar" class="selection-action-bar hidden">
-          <div class="selection-bar-main">
-            <button id="btn-selection-cancel" class="btn-sel-cancel">取消</button>
-            <span id="selection-count" class="selection-count">已選 0 桌</span>
-            <button id="btn-selection-confirm" class="btn btn-primary btn-sel-confirm" disabled>確認執行</button>
-          </div>
-          <div class="selection-bar-shortcuts">
-            <button id="btn-select-all-incomplete" class="btn-sel-shortcut">
-              <span class="label-long">全選未完成</span>
-              <span class="label-short">全選</span>
-            </button>
-            <button id="btn-select-clear" class="btn-sel-shortcut">
-              <span class="label-long">清除全選</span>
-              <span class="label-short">清除</span>
-            </button>
-            <button id="btn-select-invert" class="btn-sel-shortcut">反選</button>
-          </div>
+          <button id="btn-selection-cancel" class="btn-sel-cancel">取消</button>
+          <button id="btn-select-all-incomplete" class="btn-sel-shortcut">
+            <span class="label-long">全選未完成</span>
+            <span class="label-short">全選</span>
+          </button>
+          <button id="btn-select-clear" class="btn-sel-shortcut">
+            <span class="label-long">清除全選</span>
+            <span class="label-short">清除</span>
+          </button>
+          <button id="btn-select-invert" class="btn-sel-shortcut">反選</button>
+          <span id="selection-count" class="selection-count">已選 0 桌</span>
+          <button id="btn-selection-confirm" class="btn btn-primary btn-sel-confirm" disabled>
+            <span class="label-long">確認執行</span>
+            <span class="label-short">確認</span>
+          </button>
         </div>
 
         <div id="card-grid" class="card-grid">
