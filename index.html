@@ -166,21 +166,17 @@
       <!-- 畫面 2: 紀錄主畫面 -->
       <section id="tracker-view" class="view-panel hidden">
         <div class="dashboard-bar">
-          <div class="round-indicator">
-            <span class="label">當前輪次</span>
-            <span id="display-round" class="val">-</span>
-          </div>
-          
-          <div class="stats-info">
+          <div class="dashboard-stats-row">
+            <span id="display-round" class="display-round-compact">-</span>
             <div class="stats-text">
               <span id="stats-complete-count">已完成 0 / 0 桌</span>
               <span id="stats-percentage" class="percentage">(0%)</span>
               <span class="stats-divider">|</span>
               <span id="stats-remaining-count">剩餘 0 桌</span>
             </div>
-            <div class="progress-bar-container">
-              <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
-            </div>
+          </div>
+          <div class="progress-bar-container">
+            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
           </div>
           
           <div class="control-row">
@@ -189,10 +185,16 @@
                 <button id="btn-undo" class="disabled" title="復原">↩</button>
                 <button id="btn-redo" class="disabled" title="重做">↪</button>
               </div>
-              <button id="btn-hide-completed" class="btn-filter">隱藏已完成桌號</button>
+              <button id="btn-hide-completed" class="btn-filter">
+                <span class="label-long">隱藏已完成桌號</span>
+                <span class="label-short">隱藏完成</span>
+              </button>
             </div>
             <div class="filter-btns">
-              <button id="btn-batch-complete" class="btn-filter btn-filter-complete">批量設為已完成</button>
+              <button id="btn-batch-complete" class="btn-filter btn-filter-complete">
+                <span class="label-long">批量設為已完成</span>
+                <span class="label-short">批量完成</span>
+              </button>
               <button id="btn-copy-remaining" class="btn-filter btn-filter-copy">複製資訊</button>
               <div id="copy-menu-popup" class="copy-menu-popup" style="display:none">
                 <button id="btn-copy-range" class="copy-menu-item">本輪範圍</button>
@@ -201,12 +203,22 @@
                 <button id="btn-copy-detail" class="copy-menu-item">詳細資訊</button>
                 <button id="btn-copy-close" class="copy-menu-item copy-menu-close">關閉</button>
               </div>
-              <button id="btn-overtime-filter" class="btn-filter">只顯示加時桌</button>
+              <button id="btn-overtime-filter" class="btn-filter">
+                <span class="label-long">只顯示加時桌</span>
+                <span class="label-short">只顯示加時</span>
+              </button>
+              <button id="btn-search-toggle" class="btn-filter btn-search-toggle" title="搜尋桌號">🔍</button>
             </div>
           </div>
         </div>
 
-        <div class="table-search-bar">
+        <div class="dashboard-compact-strip">
+          <span class="compact-round" id="compact-round">R-</span>
+          <span class="compact-sep">・</span>
+          <span class="compact-progress" id="compact-progress">0/0</span>
+        </div>
+
+        <div class="table-search-bar hidden">
           <input type="number" id="table-search-input" placeholder="搜尋桌號..." min="1" autocomplete="off">
           <div id="table-search-msg" class="table-search-msg hidden"></div>
         </div>
@@ -219,8 +231,14 @@
             <button id="btn-selection-confirm" class="btn btn-primary btn-sel-confirm" disabled>確認執行</button>
           </div>
           <div class="selection-bar-shortcuts">
-            <button id="btn-select-all-incomplete" class="btn-sel-shortcut">全選未完成</button>
-            <button id="btn-select-clear" class="btn-sel-shortcut">清除全選</button>
+            <button id="btn-select-all-incomplete" class="btn-sel-shortcut">
+              <span class="label-long">全選未完成</span>
+              <span class="label-short">全選</span>
+            </button>
+            <button id="btn-select-clear" class="btn-sel-shortcut">
+              <span class="label-long">清除全選</span>
+              <span class="label-short">清除</span>
+            </button>
             <button id="btn-select-invert" class="btn-sel-shortcut">反選</button>
           </div>
         </div>

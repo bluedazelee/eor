@@ -73,6 +73,12 @@ const btnSelectInvert = document.getElementById('btn-select-invert');
 // Search elements
 const tableSearchInput = document.getElementById('table-search-input');
 const tableSearchMsg = document.getElementById('table-search-msg');
+const btnSearchToggle = document.getElementById('btn-search-toggle');
+const tableSearchBar = document.querySelector('.table-search-bar');
+
+// Compact strip elements (batch mode)
+const compactRound = document.getElementById('compact-round');
+const compactProgress = document.getElementById('compact-progress');
 
 // Overtime popup elements
 const overtimePopup = document.getElementById('overtime-popup');
@@ -601,6 +607,18 @@ function updateSelectionBar() {
 function enterSelectionMode() {
   isSelectionMode = true;
   selectedTables.clear();
+
+  // Close search bar if open
+  if (!tableSearchBar.classList.contains('hidden')) {
+    closeSearchBar();
+  }
+
+  // Update compact strip with current progress snapshot
+  const completedCount = state.tables.filter(t => t.state === 'completed').length;
+  compactRound.textContent = formatRound(state.roundNumber);
+  compactProgress.textContent = `${completedCount}/${state.tables.length}`;
+
+  trackerView.classList.add('selection-mode');
   selectionActionBar.classList.remove('hidden');
   updateSelectionBar();
   renderTracker();
@@ -609,6 +627,7 @@ function enterSelectionMode() {
 function exitSelectionMode() {
   isSelectionMode = false;
   selectedTables.clear();
+  trackerView.classList.remove('selection-mode');
   selectionActionBar.classList.add('hidden');
   renderTracker();
 }
@@ -663,6 +682,27 @@ function clearSearchHighlight() {
   tableSearchMsg.textContent = '';
   tableSearchMsg.classList.add('hidden');
 }
+
+function openSearchBar() {
+  tableSearchBar.classList.remove('hidden');
+  btnSearchToggle.classList.add('active');
+  tableSearchInput.focus();
+}
+
+function closeSearchBar() {
+  tableSearchBar.classList.add('hidden');
+  btnSearchToggle.classList.remove('active');
+  tableSearchInput.value = '';
+  clearSearchHighlight();
+}
+
+btnSearchToggle.addEventListener('click', () => {
+  if (tableSearchBar.classList.contains('hidden')) {
+    openSearchBar();
+  } else {
+    closeSearchBar();
+  }
+});
 
 function handleTableSearch(value) {
   clearSearchHighlight();

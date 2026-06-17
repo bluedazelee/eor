@@ -484,38 +484,27 @@ body {
   background: rgba(19, 19, 38, 0.5);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
-  padding: 16px 20px;
-  margin-bottom: 20px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   box-shadow: var(--shadow-sm);
 }
 
-.round-indicator {
+.dashboard-stats-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.round-indicator .label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--text-sub);
-  letter-spacing: 1px;
-}
-
-.round-indicator .val {
-  font-size: 1.3rem;
+.display-round-compact {
+  font-size: 1.1rem;
   font-weight: 700;
   color: #fff;
-}
-
-.stats-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .stats-text {
@@ -524,6 +513,9 @@ body {
   gap: 6px;
   font-size: 0.9rem;
   font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .stats-text .percentage {
@@ -1124,6 +1116,65 @@ body {
 }
 
 /* ==========================================================================
+   Dashboard Compact Strip (batch mode)
+   ========================================================================== */
+.dashboard-compact-strip {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(19, 19, 38, 0.5);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.compact-round {
+  color: #fff;
+}
+
+.compact-sep {
+  color: var(--color-text-dim);
+}
+
+.compact-progress {
+  color: var(--text-sub);
+}
+
+#tracker-view.selection-mode .dashboard-bar {
+  display: none;
+}
+
+#tracker-view.selection-mode .dashboard-compact-strip {
+  display: flex;
+}
+
+/* ==========================================================================
+   Search Toggle Button
+   ========================================================================== */
+.btn-search-toggle {
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 5px 8px;
+}
+
+.btn-search-toggle.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   RWD Label Variants
+   ========================================================================== */
+.label-short {
+  display: none;
+}
+
+/* ==========================================================================
    Table Search Bar
    ========================================================================== */
 .table-search-bar {
@@ -1177,13 +1228,25 @@ body {
     border-left: none;
     border-right: none;
   }
+  .app-header {
+    padding: 10px 20px;
+  }
   .app-main {
-    padding: 15px;
+    padding: 12px;
+  }
+  .btn {
+    padding: 10px 16px;
   }
   .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   }
   .table-card .num {
     font-size: 1.5rem;
+  }
+  .label-long {
+    display: none;
+  }
+  .label-short {
+    display: inline;
   }
 }
