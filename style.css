@@ -670,7 +670,8 @@ body {
    ========================================================================== */
 .left-controls {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   gap: 6px;
 }
 
@@ -684,7 +685,7 @@ body {
 .undo-redo-btns button {
   font-size: 1rem;
   line-height: 1;
-  padding: 4px 8px;
+  padding: 5px 8px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   background: transparent;
