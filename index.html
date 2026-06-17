@@ -107,9 +107,9 @@
 
           <div class="help-section">
             <div class="help-section-title">五、搜尋桌號</div>
-            <div class="help-item"><span class="help-item-label">搜尋欄位</span><span>桌次格線上方的輸入框，輸入桌號後頁面會自動捲動至該桌並高亮顯示</span></div>
+            <div class="help-item"><span class="help-item-label">搜尋欄位</span><span>點擊按鈕列最右側 🔍 按鈕展開搜尋欄位，輸入桌號後頁面會自動捲動至該桌並高亮顯示；再次點擊 🔍 或清空欄位可關閉搜尋</span></div>
             <div class="help-item"><span class="help-item-label">找不到時</span><span>若桌號不存在，或該桌被篩選器隱藏，欄位下方會顯示對應提示</span></div>
-            <div class="help-tip">清空搜尋欄位可取消高亮，回到正常顯示狀態</div>
+            <div class="help-tip">清空搜尋欄位可取消高亮，回到正常顯示狀態；批次選取模式下 🔍 自動隱藏</div>
           </div>
 
           <div class="help-section">
@@ -120,21 +120,21 @@
 
           <div class="help-section">
             <div class="help-section-title">七、批量設為已完成</div>
-            <div class="help-item">
-              <span class="help-item-label">範圍排除模式</span>
-              <span>輸入桌號範圍（起始～結束）與排除桌號，一次標記整段範圍中指定桌次以外的所有桌次為已完成<br>例：範圍 1～50，排除 22 23 25 → 標記 47 桌</span>
-            </div>
-            <div class="help-item">
-              <span class="help-item-label">指定桌號模式</span>
-              <span>直接輸入個別桌號，一次標記指定桌次為已完成<br>例：輸入 14 15 16 → 標記 3 桌</span>
-            </div>
-            <div class="help-tip">桌號以空格或逗號分隔均可；操作完成後可點擊「↩ 復原」一步還原整批標記</div>
+            <div class="help-item"><span class="help-item-label">進入選取模式</span><span>點擊「批量設為已完成」按鈕後，畫面進入選取模式；上方資訊列切換顯示輪次進度與已選桌數，下方顯示操作列</span></div>
+            <div class="help-item"><span class="help-item-label">篩選器可用</span><span>批次模式中仍可點擊資訊列右側的「隱藏完成」與「只顯示加時」篩選器，縮小目標範圍後再執行全選</span></div>
+            <div class="help-item"><span class="help-item-label">點選桌次</span><span>直接點擊桌號卡片切換選取狀態（綠框 ✓ 表示已選取），不影響桌次完成狀態</span></div>
+            <div class="help-item"><span class="help-item-label">全選未完成</span><span>一鍵選取目前顯示中所有尚未完成的桌次</span></div>
+            <div class="help-item"><span class="help-item-label">清除全選</span><span>取消所有已選取的桌次</span></div>
+            <div class="help-item"><span class="help-item-label">反選</span><span>將目前顯示的桌次中，已選者取消、未選者加入</span></div>
+            <div class="help-item"><span class="help-item-label">確認執行</span><span>將所有已選取的桌次標記為已完成；未選取的桌次狀態不變</span></div>
+            <div class="help-tip">操作完成後可點擊「↩ 復原」一步還原整批標記；搭配篩選器可快速定位目標桌次</div>
           </div>
 
           <div class="help-section">
             <div class="help-section-title">八、複製資訊</div>
-            <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製如「大師A組 R1 1~50」</span></div>
-            <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數</span></div>
+            <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製組別、輪次與桌號範圍，例：「大師A R1 1~50」</span></div>
+            <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數；無加時桌時顯示提示</span></div>
+            <div class="help-item"><span class="help-item-label">剩餘桌次</span><span>複製組別、輪次、桌號範圍及剩餘桌數，不含加時桌與一般桌明細</span></div>
             <div class="help-item"><span class="help-item-label">詳細資訊</span><span>複製完整摘要：範圍、剩餘桌數、加時桌與一般桌清單</span></div>
           </div>
 
@@ -167,21 +167,17 @@
       <!-- 畫面 2: 紀錄主畫面 -->
       <section id="tracker-view" class="view-panel hidden">
         <div class="dashboard-bar">
-          <div class="round-indicator">
-            <span class="label">當前輪次</span>
-            <span id="display-round" class="val">-</span>
-          </div>
-          
-          <div class="stats-info">
+          <div class="dashboard-stats-row">
+            <span id="display-round" class="display-round-compact">-</span>
             <div class="stats-text">
               <span id="stats-complete-count">已完成 0 / 0 桌</span>
               <span id="stats-percentage" class="percentage">(0%)</span>
               <span class="stats-divider">|</span>
               <span id="stats-remaining-count">剩餘 0 桌</span>
             </div>
-            <div class="progress-bar-container">
-              <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
-            </div>
+          </div>
+          <div class="progress-bar-container">
+            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
           </div>
           
           <div class="control-row">
@@ -190,25 +186,73 @@
                 <button id="btn-undo" class="disabled" title="復原">↩</button>
                 <button id="btn-redo" class="disabled" title="重做">↪</button>
               </div>
-              <button id="btn-hide-completed" class="btn-filter">隱藏已完成桌號</button>
+              <button id="btn-hide-completed" class="btn-filter">
+                <span class="label-long">隱藏已完成桌號</span>
+                <span class="label-short">隱藏完成</span>
+              </button>
             </div>
             <div class="filter-btns">
-              <button id="btn-batch-complete" class="btn-filter btn-filter-complete">批量設為已完成</button>
+              <button id="btn-batch-complete" class="btn-filter btn-filter-complete">
+                <span class="label-long">批量設為已完成</span>
+                <span class="label-short">批量完成</span>
+              </button>
               <button id="btn-copy-remaining" class="btn-filter btn-filter-copy">複製資訊</button>
               <div id="copy-menu-popup" class="copy-menu-popup" style="display:none">
                 <button id="btn-copy-range" class="copy-menu-item">本輪範圍</button>
                 <button id="btn-copy-overtime" class="copy-menu-item">加時桌次</button>
+                <button id="btn-copy-remaining-count" class="copy-menu-item">剩餘桌次</button>
                 <button id="btn-copy-detail" class="copy-menu-item">詳細資訊</button>
                 <button id="btn-copy-close" class="copy-menu-item copy-menu-close">關閉</button>
               </div>
-              <button id="btn-overtime-filter" class="btn-filter">只顯示加時桌</button>
+              <button id="btn-overtime-filter" class="btn-filter">
+                <span class="label-long">只顯示加時桌</span>
+                <span class="label-short">只顯示加時</span>
+              </button>
+              <button id="btn-search-toggle" class="btn-filter btn-search-toggle" title="搜尋桌號">🔍</button>
             </div>
           </div>
         </div>
 
-        <div class="table-search-bar">
+        <div class="dashboard-compact-strip">
+          <div class="compact-info">
+            <span class="compact-round" id="compact-round">R-</span>
+            <span class="compact-sep">・</span>
+            <span class="compact-progress" id="compact-progress">0/0</span>
+          </div>
+          <span id="selection-count" class="selection-count compact-selection-count">已選 0 桌</span>
+          <div class="compact-filters">
+            <button id="btn-hide-completed-compact" class="btn-filter" data-filter="hide-completed">
+              <span class="label-long">隱藏完成</span>
+              <span class="label-short">隱藏</span>
+            </button>
+            <button id="btn-overtime-filter-compact" class="btn-filter" data-filter="overtime">
+              <span class="label-long">只顯示加時</span>
+              <span class="label-short">加時</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-search-bar hidden">
           <input type="number" id="table-search-input" placeholder="搜尋桌號..." min="1" autocomplete="off">
           <div id="table-search-msg" class="table-search-msg hidden"></div>
+        </div>
+
+        <!-- Selection Mode Action Bar -->
+        <div id="selection-action-bar" class="selection-action-bar hidden">
+          <button id="btn-selection-cancel" class="btn-sel-cancel">取消</button>
+          <button id="btn-select-all-incomplete" class="btn-sel-shortcut">
+            <span class="label-long">全選未完成</span>
+            <span class="label-short">全選</span>
+          </button>
+          <button id="btn-select-clear" class="btn-sel-shortcut">
+            <span class="label-long">清除全選</span>
+            <span class="label-short">清除</span>
+          </button>
+          <button id="btn-select-invert" class="btn-sel-shortcut">反選</button>
+          <button id="btn-selection-confirm" class="btn btn-primary btn-sel-confirm" disabled>
+            <span class="label-long">確認執行</span>
+            <span class="label-short">確認</span>
+          </button>
         </div>
 
         <div id="card-grid" class="card-grid">
@@ -227,45 +271,6 @@
     </main>
   </div>
   
-  <!-- Batch Complete popup (bottom sheet) -->
-  <div id="batch-complete-popup" class="batch-complete-popup hidden">
-    <div class="batch-popup-content">
-      <div class="batch-popup-header">
-        <span>批量設為已完成</span>
-        <button id="btn-batch-close" class="btn-batch-close">✕</button>
-      </div>
-      <div class="batch-tabs">
-        <button id="tab-range" class="batch-tab active">範圍排除</button>
-        <button id="tab-specific" class="batch-tab">指定桌號</button>
-      </div>
-      <div id="batch-range-fields" class="batch-fields">
-        <div class="batch-field-row">
-          <label>桌號範圍</label>
-          <div class="batch-range-inputs">
-            <input type="number" id="batch-range-start" min="1" placeholder="起始">
-            <span class="batch-range-sep">～</span>
-            <input type="number" id="batch-range-end" min="1" placeholder="結束">
-          </div>
-        </div>
-        <div class="batch-field-row">
-          <label>排除桌號（空格或逗號分隔）</label>
-          <input type="text" id="batch-exclude" placeholder="例如：22 23 25" autocomplete="off">
-        </div>
-      </div>
-      <div id="batch-specific-fields" class="batch-fields hidden">
-        <div class="batch-field-row">
-          <label>桌號（空格或逗號分隔）</label>
-          <input type="text" id="batch-specific" placeholder="例如：14 15 16" autocomplete="off">
-        </div>
-      </div>
-      <div id="batch-preview-text" class="batch-preview">將標記 0 桌為已完成</div>
-      <div class="batch-actions">
-        <button id="btn-batch-cancel" class="btn btn-secondary">取消</button>
-        <button id="btn-batch-confirm" class="btn btn-primary" disabled>確認執行</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Overtime marking popup (singleton) -->
   <div id="overtime-popup" class="overtime-popup hidden">
     <div id="overtime-popup-title" class="overtime-popup-title"><span>設定加時（分鐘）</span><button id="btn-overtime-close" class="btn-overtime-close">✕</button></div>

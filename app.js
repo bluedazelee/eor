@@ -53,6 +53,7 @@ const btnCopyRemaining = document.getElementById('btn-copy-remaining');
 const copyMenuPopup = document.getElementById('copy-menu-popup');
 const btnCopyRange = document.getElementById('btn-copy-range');
 const btnCopyOvertime = document.getElementById('btn-copy-overtime');
+const btnCopyRemainingCount = document.getElementById('btn-copy-remaining-count');
 const btnCopyDetail = document.getElementById('btn-copy-detail');
 const btnCopyClose = document.getElementById('btn-copy-close');
 const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
@@ -60,24 +61,26 @@ const connectionBadge = document.getElementById('connection-badge');
 const btnUndo = document.getElementById('btn-undo');
 const btnRedo = document.getElementById('btn-redo');
 
-// Batch complete popup elements
-const batchCompletePopup = document.getElementById('batch-complete-popup');
-const tabRange = document.getElementById('tab-range');
-const tabSpecific = document.getElementById('tab-specific');
-const batchRangeFields = document.getElementById('batch-range-fields');
-const batchSpecificFields = document.getElementById('batch-specific-fields');
-const batchRangeStart = document.getElementById('batch-range-start');
-const batchRangeEnd = document.getElementById('batch-range-end');
-const batchExclude = document.getElementById('batch-exclude');
-const batchSpecific = document.getElementById('batch-specific');
-const batchPreviewText = document.getElementById('batch-preview-text');
-const btnBatchClose = document.getElementById('btn-batch-close');
-const btnBatchCancel = document.getElementById('btn-batch-cancel');
-const btnBatchConfirm = document.getElementById('btn-batch-confirm');
+// Selection mode elements
+const selectionActionBar = document.getElementById('selection-action-bar');
+const selectionCount = document.getElementById('selection-count');
+const btnSelectionCancel = document.getElementById('btn-selection-cancel');
+const btnSelectionConfirm = document.getElementById('btn-selection-confirm');
+const btnSelectAllIncomplete = document.getElementById('btn-select-all-incomplete');
+const btnSelectClear = document.getElementById('btn-select-clear');
+const btnSelectInvert = document.getElementById('btn-select-invert');
 
 // Search elements
 const tableSearchInput = document.getElementById('table-search-input');
 const tableSearchMsg = document.getElementById('table-search-msg');
+const btnSearchToggle = document.getElementById('btn-search-toggle');
+const tableSearchBar = document.querySelector('.table-search-bar');
+
+// Compact strip elements (batch mode)
+const compactRound = document.getElementById('compact-round');
+const compactProgress = document.getElementById('compact-progress');
+const btnHideCompletedCompact = document.getElementById('btn-hide-completed-compact');
+const btnOvertimeFilterCompact = document.getElementById('btn-overtime-filter-compact');
 
 // Overtime popup elements
 const overtimePopup = document.getElementById('overtime-popup');
@@ -346,8 +349,33 @@ function renderTracker() {
       card.appendChild(badge);
     }
 
-    // Click: cycle state (skip if long press just fired)
+    // Selection mode overlay
+    if (isSelectionMode && selectedTables.has(table.number)) {
+      card.classList.add('table-card-selected');
+      const check = document.createElement('span');
+      check.className = 'selection-check';
+      check.textContent = '✓';
+      card.appendChild(check);
+    }
+
+    // Click: toggle selection in selection mode, otherwise cycle state
     card.addEventListener('click', () => {
+      if (isSelectionMode) {
+        if (selectedTables.has(table.number)) {
+          selectedTables.delete(table.number);
+          card.classList.remove('table-card-selected');
+          card.querySelector('.selection-check')?.remove();
+        } else {
+          selectedTables.add(table.number);
+          card.classList.add('table-card-selected');
+          const check = document.createElement('span');
+          check.className = 'selection-check';
+          check.textContent = '✓';
+          card.appendChild(check);
+        }
+        updateSelectionBar();
+        return;
+      }
       if (longPressTriggered) {
         longPressTriggered = false;
         return;
@@ -355,7 +383,7 @@ function renderTracker() {
       cycleCardState(table.number);
     });
 
-    // Long press: open overtime popup
+    // Long press: open overtime popup (disabled in selection mode)
     attachLongPress(card, table.number);
 
     cardGrid.appendChild(card);
@@ -407,6 +435,7 @@ btnHideCompleted.addEventListener('click', () => {
   hideCompleted = !hideCompleted;
   btnHideCompleted.classList.toggle('active', hideCompleted);
   renderTracker();
+  syncCompactFilterState();
 });
 
 // ==========================================================================
@@ -418,6 +447,7 @@ function attachLongPress(cardElement, tableNumber) {
   let startY = 0;
 
   cardElement.addEventListener('pointerdown', e => {
+    if (isSelectionMode) return;
     startX = e.clientX;
     startY = e.clientY;
     pressTimer = setTimeout(() => {
@@ -541,6 +571,7 @@ btnOvertimeFilter.addEventListener('click', () => {
   showOvertimeOnly = !showOvertimeOnly;
   btnOvertimeFilter.classList.toggle('active', showOvertimeOnly);
   renderTracker();
+  syncCompactFilterState();
 });
 
 // ==========================================================================
@@ -566,97 +597,83 @@ btnForceEndRound.addEventListener('click', () => {
 
 
 // ==========================================================================
-// Batch Complete
+// Batch Complete — Selection Mode
 // ==========================================================================
-let batchMode = 'range'; // 'range' | 'specific'
+let isSelectionMode = false;
+const selectedTables = new Set();
 
-function parseTableNums(str) {
-  return str.split(/[\s,]+/).map(s => parseInt(s, 10)).filter(n => !isNaN(n) && n > 0);
+function updateSelectionBar() {
+  const n = selectedTables.size;
+  selectionCount.textContent = `已選 ${n} 桌`;
+  btnSelectionConfirm.disabled = n === 0;
 }
 
-function calcBatchTargets() {
-  if (batchMode === 'range') {
-    const start = parseInt(batchRangeStart.value, 10);
-    const end = parseInt(batchRangeEnd.value, 10);
-    if (isNaN(start) || isNaN(end) || start > end) return [];
-    const excludeSet = new Set(parseTableNums(batchExclude.value));
-    return state.tables
-      .filter(t => t.number >= start && t.number <= end && !excludeSet.has(t.number))
-      .map(t => t.number);
-  } else {
-    const nums = new Set(parseTableNums(batchSpecific.value));
-    return state.tables.filter(t => nums.has(t.number)).map(t => t.number);
+function enterSelectionMode() {
+  isSelectionMode = true;
+  selectedTables.clear();
+
+  // Close search bar if open
+  if (!tableSearchBar.classList.contains('hidden')) {
+    closeSearchBar();
   }
+
+  // Update compact strip with current progress snapshot
+  const completedCount = state.tables.filter(t => t.state === 'completed').length;
+  compactRound.textContent = formatRound(state.roundNumber);
+  compactProgress.textContent = `${completedCount}/${state.tables.length}`;
+
+  trackerView.classList.add('selection-mode');
+  selectionActionBar.classList.remove('hidden');
+  updateSelectionBar();
+  syncCompactFilterState();
+  renderTracker();
 }
 
-function updateBatchPreview() {
-  const targets = calcBatchTargets();
-  const count = targets.length;
-  if (count === 0) {
-    batchPreviewText.textContent = '將標記 0 桌為已完成';
-    batchPreviewText.classList.add('zero');
-    btnBatchConfirm.disabled = true;
-  } else {
-    batchPreviewText.textContent = `將標記 ${count} 桌為已完成`;
-    batchPreviewText.classList.remove('zero');
-    btnBatchConfirm.disabled = false;
-  }
+function exitSelectionMode() {
+  isSelectionMode = false;
+  selectedTables.clear();
+  trackerView.classList.remove('selection-mode');
+  selectionActionBar.classList.add('hidden');
+  renderTracker();
 }
 
-function switchBatchTab(mode) {
-  batchMode = mode;
-  if (mode === 'range') {
-    tabRange.classList.add('active');
-    tabSpecific.classList.remove('active');
-    batchRangeFields.classList.remove('hidden');
-    batchSpecificFields.classList.add('hidden');
-    batchRangeStart.value = '';
-    batchRangeEnd.value = '';
-    batchExclude.value = '';
-  } else {
-    tabSpecific.classList.add('active');
-    tabRange.classList.remove('active');
-    batchSpecificFields.classList.remove('hidden');
-    batchRangeFields.classList.add('hidden');
-    batchSpecific.value = '';
-  }
-  updateBatchPreview();
-}
+btnBatchComplete.addEventListener('click', enterSelectionMode);
 
-function openBatchPopup() {
-  switchBatchTab('range');
-  batchCompletePopup.classList.remove('hidden');
-}
+btnSelectionCancel.addEventListener('click', exitSelectionMode);
 
-function closeBatchPopup() {
-  batchCompletePopup.classList.add('hidden');
-}
-
-function executeBatchComplete() {
-  const targets = calcBatchTargets();
-  if (targets.length === 0) return;
-  const targetSet = new Set(targets);
+btnSelectionConfirm.addEventListener('click', () => {
+  if (selectedTables.size === 0) return;
   commitState();
-  state.tables.forEach(t => { if (targetSet.has(t.number)) t.state = 'completed'; });
+  state.tables.forEach(t => { if (selectedTables.has(t.number)) t.state = 'completed'; });
   saveState();
   renderTracker();
-  closeBatchPopup();
-}
-
-tabRange.addEventListener('click', () => switchBatchTab('range'));
-tabSpecific.addEventListener('click', () => switchBatchTab('specific'));
-
-[batchRangeStart, batchRangeEnd, batchExclude, batchSpecific].forEach(el => {
-  el.addEventListener('input', updateBatchPreview);
+  exitSelectionMode();
 });
 
-btnBatchComplete.addEventListener('click', openBatchPopup);
-btnBatchClose.addEventListener('click', closeBatchPopup);
-btnBatchCancel.addEventListener('click', closeBatchPopup);
-btnBatchConfirm.addEventListener('click', executeBatchComplete);
+btnSelectAllIncomplete.addEventListener('click', () => {
+  const visibleIncomplete = Array.from(cardGrid.querySelectorAll('.table-card'))
+    .filter(card => !card.classList.contains('state-completed'))
+    .map(card => parseInt(card.dataset.num, 10));
+  visibleIncomplete.forEach(n => selectedTables.add(n));
+  updateSelectionBar();
+  renderTracker();
+});
 
-batchCompletePopup.addEventListener('pointerdown', e => {
-  if (e.target === batchCompletePopup) closeBatchPopup();
+btnSelectClear.addEventListener('click', () => {
+  selectedTables.clear();
+  updateSelectionBar();
+  renderTracker();
+});
+
+btnSelectInvert.addEventListener('click', () => {
+  const visibleNums = Array.from(cardGrid.querySelectorAll('.table-card'))
+    .map(card => parseInt(card.dataset.num, 10));
+  visibleNums.forEach(n => {
+    if (selectedTables.has(n)) selectedTables.delete(n);
+    else selectedTables.add(n);
+  });
+  updateSelectionBar();
+  renderTracker();
 });
 
 // ==========================================================================
@@ -670,6 +687,35 @@ function clearSearchHighlight() {
   tableSearchMsg.textContent = '';
   tableSearchMsg.classList.add('hidden');
 }
+
+function syncCompactFilterState() {
+  btnHideCompletedCompact.classList.toggle('active', hideCompleted);
+  btnOvertimeFilterCompact.classList.toggle('active', showOvertimeOnly);
+}
+
+btnHideCompletedCompact.addEventListener('click', () => btnHideCompleted.click());
+btnOvertimeFilterCompact.addEventListener('click', () => btnOvertimeFilter.click());
+
+function openSearchBar() {
+  tableSearchBar.classList.remove('hidden');
+  btnSearchToggle.classList.add('active');
+  tableSearchInput.focus();
+}
+
+function closeSearchBar() {
+  tableSearchBar.classList.add('hidden');
+  btnSearchToggle.classList.remove('active');
+  tableSearchInput.value = '';
+  clearSearchHighlight();
+}
+
+btnSearchToggle.addEventListener('click', () => {
+  if (tableSearchBar.classList.contains('hidden')) {
+    openSearchBar();
+  } else {
+    closeSearchBar();
+  }
+});
 
 function handleTableSearch(value) {
   clearSearchHighlight();
@@ -707,6 +753,11 @@ tableSearchInput.addEventListener('input', e => handleTableSearch(e.target.value
 function buildRangeInfo() {
   const group = state.group;
   return `${group} ${formatRound(state.roundNumber)} ${state.startTable}~${state.endTable}`;
+}
+
+function buildRemainingCountInfo() {
+  const remaining = state.tables.filter(t => t.state !== 'completed');
+  return `${buildRangeInfo()}\n\n剩餘 ${remaining.length} 桌`;
 }
 
 // Returns overtime-tables string, or null if none exist
@@ -786,7 +837,7 @@ btnCopyRange.addEventListener('click', async (e) => {
   const info = buildRangeInfo();
   const ok = await copyToClipboard(info);
   if (ok) {
-    alert(`已複製剩餘桌次資訊：\n${info}`);
+    alert(`已複製本輪範圍：\n${info}`);
   } else {
     alert(`複製失敗，請手動複製：\n${info}`);
   }
@@ -801,10 +852,22 @@ btnCopyOvertime.addEventListener('click', async (e) => {
   } else {
     const ok = await copyToClipboard(info);
     if (ok) {
-      alert(`已複製剩餘桌次資訊：\n${info}`);
+      alert(`已複製加時桌次：\n${info}`);
     } else {
       alert(`複製失敗，請手動複製：\n${info}`);
     }
+  }
+  hideCopyMenu();
+});
+
+btnCopyRemainingCount.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  const info = buildRemainingCountInfo();
+  const ok = await copyToClipboard(info);
+  if (ok) {
+    alert(`已複製剩餘桌次：\n${info}`);
+  } else {
+    alert(`複製失敗，請手動複製：\n${info}`);
   }
   hideCopyMenu();
 });
@@ -814,7 +877,7 @@ btnCopyDetail.addEventListener('click', async (e) => {
   const info = buildRemainingInfo();
   const ok = await copyToClipboard(info);
   if (ok) {
-    alert(`已複製剩餘桌次資訊：\n${info}`);
+    alert(`已複製詳細資訊：\n${info}`);
   } else {
     alert(`複製失敗，請手動複製：\n${info}`);
   }

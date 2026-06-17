@@ -76,7 +76,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 20px;
+  padding: 10px 20px;
   background: rgba(19, 19, 38, 0.4);
   border-bottom: 1px solid var(--card-border);
 }
@@ -88,12 +88,12 @@ body {
 }
 
 .pokeball-icon {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   animation: pulse 2s infinite ease-in-out;
 }
 
 .app-header h1 {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   background: linear-gradient(135deg, #fff 30%, var(--text-sub) 100%);
@@ -257,7 +257,7 @@ body {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: 14px 24px;
+  padding: 10px 20px;
   font-size: 1rem;
   font-weight: 700;
   border: none;
@@ -484,38 +484,27 @@ body {
   background: rgba(19, 19, 38, 0.5);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-md);
-  padding: 16px 20px;
-  margin-bottom: 20px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   box-shadow: var(--shadow-sm);
 }
 
-.round-indicator {
+.dashboard-stats-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.round-indicator .label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--text-sub);
-  letter-spacing: 1px;
-}
-
-.round-indicator .val {
-  font-size: 1.3rem;
+.display-round-compact {
+  font-size: 1.1rem;
   font-weight: 700;
   color: #fff;
-}
-
-.stats-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .stats-text {
@@ -524,6 +513,9 @@ body {
   gap: 6px;
   font-size: 0.9rem;
   font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .stats-text .percentage {
@@ -678,7 +670,8 @@ body {
    ========================================================================== */
 .left-controls {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   gap: 6px;
 }
 
@@ -692,7 +685,7 @@ body {
 .undo-redo-btns button {
   font-size: 1rem;
   line-height: 1;
-  padding: 4px 8px;
+  padding: 5px 8px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   background: transparent;
@@ -1022,72 +1015,68 @@ body {
 }
 
 /* ==========================================================================
-   Batch Complete Popup (Bottom Sheet)
+   Batch Complete — Selection Mode Action Bar
    ========================================================================== */
-.batch-complete-popup {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
+.selection-action-bar {
+  flex-shrink: 0;
+  background: #1e1e35;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 5px 10px;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  background: rgba(0, 0, 0, 0.55);
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-.batch-complete-popup.hidden {
+.selection-action-bar.hidden {
   display: none;
 }
 
-.batch-popup-content {
-  background: #1e1e35;
-  border-top: 1px solid var(--card-border);
-  border-radius: 16px 16px 0 0;
-  padding: 20px 16px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-height: 80vh;
-  overflow-y: auto;
+
+.btn-sel-cancel {
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.batch-popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.btn-sel-cancel:hover {
+  border-color: var(--card-hover-border);
+  color: var(--text-main);
+}
+
+.selection-count {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text-sub);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--color-completed);
+  white-space: nowrap;
 }
 
-.btn-batch-close {
-  background: none;
-  border: none;
-  color: var(--text-sub);
-  opacity: 0.6;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0;
-  line-height: 1;
-  font-family: inherit;
+.compact-selection-count {
+  flex-shrink: 0;
 }
 
-.btn-batch-close:hover {
-  opacity: 1;
-}
-
-/* Tabs */
-.batch-tabs {
-  display: flex;
-  gap: 8px;
-}
-
-.batch-tab {
-  flex: 1;
-  padding: 9px;
+.btn-sel-confirm {
   font-size: 0.8rem;
-  font-weight: 700;
+  padding: 5px 10px;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+
+.btn-sel-shortcut {
+  padding: 5px 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
   border: 1px solid var(--card-border);
   border-radius: var(--radius-sm);
   background: transparent;
@@ -1095,94 +1084,102 @@ body {
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.batch-tab.active {
-  background: rgba(46, 213, 115, 0.12);
+.btn-sel-shortcut:hover {
   border-color: var(--color-completed);
   color: var(--color-completed);
+  background: rgba(46, 213, 115, 0.08);
 }
 
-/* Fields */
-.batch-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* Selected card state */
+.table-card-selected {
+  border-color: var(--color-completed) !important;
+  background: rgba(46, 213, 115, 0.12) !important;
 }
 
-.batch-field-row {
+.selection-check {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: var(--color-completed);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Dashboard Compact Strip (batch mode)
+   ========================================================================== */
+.dashboard-compact-strip {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 10px;
+  background: rgba(19, 19, 38, 0.5);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.compact-info {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.compact-filters {
+  display: flex;
+  align-items: center;
   gap: 6px;
 }
 
-.batch-field-row label {
-  font-size: 0.75rem;
-  color: var(--text-sub);
-  font-weight: 600;
-}
-
-.batch-range-inputs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.batch-range-sep {
-  color: var(--text-sub);
-  flex-shrink: 0;
-}
-
-.batch-range-inputs input {
-  flex: 1;
-  min-width: 0;
-}
-
-.batch-fields input[type="number"],
-.batch-fields input[type="text"] {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
+.compact-round {
   color: #fff;
-  font-size: 1rem;
-  font-family: inherit;
 }
 
-.batch-fields input:focus {
-  outline: none;
-  border-color: var(--color-completed);
-}
-
-.batch-fields input::placeholder {
+.compact-sep {
   color: var(--color-text-dim);
 }
 
-/* Preview text */
-.batch-preview {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-completed);
-  text-align: center;
-  padding: 8px;
-  background: rgba(46, 213, 115, 0.08);
-  border-radius: var(--radius-sm);
-}
-
-.batch-preview.zero {
+.compact-progress {
   color: var(--text-sub);
-  background: rgba(255, 255, 255, 0.04);
 }
 
-/* Action buttons */
-.batch-actions {
+#tracker-view.selection-mode .dashboard-bar {
+  display: none;
+}
+
+#tracker-view.selection-mode .dashboard-compact-strip {
   display: flex;
-  gap: 10px;
 }
 
-.batch-actions .btn {
-  flex: 1;
+/* ==========================================================================
+   Search Toggle Button
+   ========================================================================== */
+.btn-search-toggle {
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 5px 8px;
+}
+
+.btn-search-toggle.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   RWD Label Variants
+   ========================================================================== */
+.label-short {
+  display: none;
 }
 
 /* ==========================================================================
@@ -1240,12 +1237,21 @@ body {
     border-right: none;
   }
   .app-main {
-    padding: 15px;
+    padding: 12px;
+  }
+  .btn {
+    padding: 10px 16px;
   }
   .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   }
   .table-card .num {
     font-size: 1.5rem;
+  }
+  .label-long {
+    display: none;
+  }
+  .label-short {
+    display: inline;
   }
 }
