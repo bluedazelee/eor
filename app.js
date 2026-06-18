@@ -25,6 +25,7 @@ let redoStack = [];
 const STORAGE_KEY = 'ptcg_eor_tracker_state';
 const GROUP_STORAGE_KEY = 'ptcg_eor_group';
 const RANGE_STORAGE_KEY = 'ptcg_eor_range';
+const CARD_SIZE_KEY = 'ptcg_eor_card_size';
 
 // DOM Elements
 const setupView = document.getElementById('setup-view');
@@ -59,6 +60,10 @@ const btnOvertimeFilter = document.getElementById('btn-overtime-filter');
 const connectionBadge = document.getElementById('connection-badge');
 const btnUndo = document.getElementById('btn-undo');
 const btnRedo = document.getElementById('btn-redo');
+const btnZoomIn = document.getElementById('btn-zoom-in');
+const btnZoomOut = document.getElementById('btn-zoom-out');
+const btnZoomInCompact = document.getElementById('btn-zoom-in-compact');
+const btnZoomOutCompact = document.getElementById('btn-zoom-out-compact');
 
 // Selection mode elements
 const selectionActionBar = document.getElementById('selection-action-bar');
@@ -190,6 +195,25 @@ function redoAction() {
   saveState();
   renderTracker();
   updateUndoRedoButtons();
+}
+
+// ==========================================================================
+// Card Size Zoom
+// ==========================================================================
+let currentCardSize = 'lg';
+
+function applyCardSize(size) {
+  currentCardSize = size;
+  cardGrid.classList.remove('size-md', 'size-sm');
+  if (size === 'md') cardGrid.classList.add('size-md');
+  if (size === 'sm') cardGrid.classList.add('size-sm');
+  const atMax = size === 'lg';
+  const atMin = size === 'sm';
+  btnZoomIn.classList.toggle('disabled', atMax);
+  btnZoomOut.classList.toggle('disabled', atMin);
+  btnZoomInCompact.classList.toggle('disabled', atMax);
+  btnZoomOutCompact.classList.toggle('disabled', atMin);
+  localStorage.setItem(CARD_SIZE_KEY, size);
 }
 
 // ==========================================================================
@@ -435,6 +459,26 @@ btnHideCompleted.addEventListener('click', () => {
   btnHideCompleted.classList.toggle('active', hideCompleted);
   renderTracker();
   syncCompactFilterState();
+});
+
+btnZoomIn.addEventListener('click', () => {
+  if (currentCardSize === 'sm') applyCardSize('md');
+  else if (currentCardSize === 'md') applyCardSize('lg');
+});
+
+btnZoomOut.addEventListener('click', () => {
+  if (currentCardSize === 'lg') applyCardSize('md');
+  else if (currentCardSize === 'md') applyCardSize('sm');
+});
+
+btnZoomInCompact.addEventListener('click', () => {
+  if (currentCardSize === 'sm') applyCardSize('md');
+  else if (currentCardSize === 'md') applyCardSize('lg');
+});
+
+btnZoomOutCompact.addEventListener('click', () => {
+  if (currentCardSize === 'lg') applyCardSize('md');
+  else if (currentCardSize === 'md') applyCardSize('sm');
 });
 
 // ==========================================================================
@@ -895,19 +939,6 @@ document.addEventListener('click', () => {
 // ==========================================================================
 // Control Row Layout Sync
 // ==========================================================================
-function syncLeftControlsLayout() {
-  const filterBtns = document.querySelector('.filter-btns');
-  const leftControls = document.querySelector('.left-controls');
-  if (!filterBtns || !leftControls) return;
-
-  const visibleChildren = [...filterBtns.children].filter(el => el.offsetParent !== null);
-  if (visibleChildren.length < 2) return;
-
-  const firstTop = visibleChildren[0].getBoundingClientRect().top;
-  const isWrapped = visibleChildren.some(ch => Math.abs(ch.getBoundingClientRect().top - firstTop) > 2);
-  leftControls.classList.toggle('stacked', isWrapped);
-}
-
 // ==========================================================================
 // Initialization
 // ==========================================================================
@@ -916,10 +947,5 @@ document.addEventListener('DOMContentLoaded', () => {
   loadState();
   restoreGroupSelection();
   registerServiceWorker();
-
-  const filterBtns = document.querySelector('.filter-btns');
-  if (filterBtns) {
-    new ResizeObserver(syncLeftControlsLayout).observe(filterBtns);
-    syncLeftControlsLayout();
-  }
+  applyCardSize(localStorage.getItem(CARD_SIZE_KEY) || 'lg');
 });

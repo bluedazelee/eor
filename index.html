@@ -114,8 +114,9 @@
 
           <div class="help-section">
             <div class="help-section-title">六、篩選與顯示控制</div>
-            <div class="help-item"><span class="help-item-label">隱藏已完成桌號</span><span>點選後隱藏已完成桌次，專注於未完成部分；再次點選恢復顯示</span></div>
-            <div class="help-item"><span class="help-item-label">只顯示加時桌</span><span>點選後只顯示有加時標記的桌次，可與上方篩選複合使用</span></div>
+            <div class="help-item"><span class="help-item-label">隱藏完成</span><span>點選後隱藏已完成桌次，專注於未完成部分；再次點選恢復顯示</span></div>
+            <div class="help-item"><span class="help-item-label">只顯示加時</span><span>點選後只顯示有加時標記的桌次，可與上方篩選複合使用</span></div>
+            <div class="help-item"><span class="help-item-label">+ / −</span><span>調整桌次卡片顯示大小：大（每列約 3 桌）→ 中（4 桌）→ 小（5 桌）；偏好設定會自動記住</span></div>
           </div>
 
           <div class="help-section">
@@ -181,36 +182,26 @@
           </div>
           
           <div class="control-row">
-            <div class="left-controls">
-              <div class="undo-redo-btns">
-                <button id="btn-undo" class="disabled" title="復原">↩</button>
-                <button id="btn-redo" class="disabled" title="重做">↪</button>
-              </div>
-              <button id="btn-hide-completed" class="btn-filter">
-                <span class="label-long">隱藏已完成桌號</span>
-                <span class="label-short">隱藏完成</span>
-              </button>
+            <div class="undo-redo-btns">
+              <button id="btn-undo" class="disabled" title="復原">↩</button>
+              <button id="btn-redo" class="disabled" title="重做">↪</button>
             </div>
-            <div class="filter-btns">
-              <button id="btn-batch-complete" class="btn-filter btn-filter-complete">
-                <span class="label-long">批量設為已完成</span>
-                <span class="label-short">批量完成</span>
-              </button>
-              <button id="btn-copy-remaining" class="btn-filter btn-filter-copy">複製資訊</button>
-              <div id="copy-menu-popup" class="copy-menu-popup" style="display:none">
-                <button id="btn-copy-range" class="copy-menu-item">本輪範圍</button>
-                <button id="btn-copy-overtime" class="copy-menu-item">加時桌次</button>
-                <button id="btn-copy-remaining-count" class="copy-menu-item">剩餘桌次</button>
-                <button id="btn-copy-detail" class="copy-menu-item">詳細資訊</button>
-                <button id="btn-copy-close" class="copy-menu-item copy-menu-close">關閉</button>
-              </div>
-              <div class="filter-break"></div>
-              <button id="btn-overtime-filter" class="btn-filter">
-                <span class="label-long">只顯示加時桌</span>
-                <span class="label-short">只顯示加時</span>
-              </button>
-              <button id="btn-search-toggle" class="btn-filter btn-search-toggle" title="搜尋桌號">🔍</button>
+            <div class="zoom-btns">
+              <button id="btn-zoom-in" class="disabled" title="放大卡片">+</button>
+              <button id="btn-zoom-out" title="縮小卡片">−</button>
             </div>
+            <button id="btn-batch-complete" class="btn-filter btn-filter-complete">批量完成</button>
+            <button id="btn-hide-completed" class="btn-filter">隱藏完成</button>
+            <button id="btn-overtime-filter" class="btn-filter">只顯示加時</button>
+            <button id="btn-copy-remaining" class="btn-filter btn-filter-copy">📋</button>
+            <div id="copy-menu-popup" class="copy-menu-popup" style="display:none">
+              <button id="btn-copy-range" class="copy-menu-item">本輪範圍</button>
+              <button id="btn-copy-overtime" class="copy-menu-item">加時桌次</button>
+              <button id="btn-copy-remaining-count" class="copy-menu-item">剩餘桌次</button>
+              <button id="btn-copy-detail" class="copy-menu-item">詳細資訊</button>
+              <button id="btn-copy-close" class="copy-menu-item copy-menu-close">關閉</button>
+            </div>
+            <button id="btn-search-toggle" class="btn-filter btn-search-toggle" title="搜尋桌號">🔍</button>
           </div>
         </div>
 
@@ -221,6 +212,10 @@
             <span class="compact-progress" id="compact-progress">0/0</span>
           </div>
           <span id="selection-count" class="selection-count compact-selection-count">已選 0 桌</span>
+          <div class="zoom-btns">
+            <button id="btn-zoom-in-compact" class="disabled" title="放大卡片">+</button>
+            <button id="btn-zoom-out-compact" title="縮小卡片">−</button>
+          </div>
           <div class="compact-filters">
             <button id="btn-hide-completed-compact" class="btn-filter" data-filter="hide-completed">
               <span class="label-long">隱藏完成</span>
