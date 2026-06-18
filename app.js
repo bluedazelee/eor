@@ -15,6 +15,7 @@ let state = {
 let showOvertimeOnly = false;
 let hideCompleted = false;
 let longPressTriggered = false;
+let activeRangeTab = null; // null = 全部；或 { start, end }
 
 // Undo/Redo history (not persisted to localStorage)
 const MAX_UNDO = 20;
@@ -44,6 +45,7 @@ const statsRemainingCount = document.getElementById('stats-remaining-count');
 const progressBarFill = document.getElementById('progress-bar-fill');
 const btnHideCompleted = document.getElementById('btn-hide-completed');
 const cardGrid = document.getElementById('card-grid');
+const rangeFilterBar = document.getElementById('range-filter-bar');
 const btnFinishRound = document.getElementById('btn-finish-round');
 const btnBatchComplete = document.getElementById('btn-batch-complete');
 const helpView = document.getElementById('help-view');
@@ -198,6 +200,56 @@ function redoAction() {
 }
 
 // ==========================================================================
+// Range Filter Tabs
+// ==========================================================================
+function buildRangeTabs(startTable, endTable) {
+  const total = endTable - startTable + 1;
+  const segmentSize = Math.max(25, Math.ceil(total / 4));
+  const tabs = [];
+  for (let s = startTable; s <= endTable; s += segmentSize) {
+    tabs.push({ start: s, end: Math.min(s + segmentSize - 1, endTable) });
+  }
+  return tabs.length > 1 ? tabs : [];
+}
+
+function renderRangeTabs() {
+  const tabs = buildRangeTabs(state.startTable, state.endTable);
+  rangeFilterBar.innerHTML = '';
+
+  if (tabs.length === 0) {
+    rangeFilterBar.classList.add('hidden');
+    return;
+  }
+
+  rangeFilterBar.classList.remove('hidden');
+
+  const allIncomplete = state.tables.filter(t => t.state !== 'completed').length;
+  const allBtn = document.createElement('button');
+  allBtn.className = 'range-tab' + (activeRangeTab === null ? ' active' : '');
+  allBtn.textContent = `全部 (${allIncomplete})`;
+  allBtn.addEventListener('click', () => {
+    activeRangeTab = null;
+    renderTracker();
+  });
+  rangeFilterBar.appendChild(allBtn);
+
+  tabs.forEach(tab => {
+    const incomplete = state.tables.filter(
+      t => t.number >= tab.start && t.number <= tab.end && t.state !== 'completed'
+    ).length;
+    const btn = document.createElement('button');
+    const isActive = activeRangeTab && activeRangeTab.start === tab.start && activeRangeTab.end === tab.end;
+    btn.className = 'range-tab' + (isActive ? ' active' : '');
+    btn.textContent = `${tab.start}-${tab.end} (${incomplete})`;
+    btn.addEventListener('click', () => {
+      activeRangeTab = tab;
+      renderTracker();
+    });
+    rangeFilterBar.appendChild(btn);
+  });
+}
+
+// ==========================================================================
 // Card Size Zoom
 // ==========================================================================
 let currentCardSize = 'lg';
@@ -333,10 +385,11 @@ function renderTracker() {
     else if (table.state === 'assigned') assignedCount++;
     else activeCount++;
 
-    // Compound visibility filter: overtime AND completed filters (AND)
+    // Compound visibility filter: overtime AND completed AND range filters (AND)
     const passesOvertimeFilter = showOvertimeOnly ? table.overtimeMinutes !== null : true;
     const passesCompletedFilter = hideCompleted ? table.state !== 'completed' : true;
-    if (!passesOvertimeFilter || !passesCompletedFilter) return;
+    const passesRangeFilter = activeRangeTab ? (table.number >= activeRangeTab.start && table.number <= activeRangeTab.end) : true;
+    if (!passesOvertimeFilter || !passesCompletedFilter || !passesRangeFilter) return;
 
     const card = document.createElement('div');
     card.className = `table-card state-${table.state}`;
@@ -430,6 +483,8 @@ function renderTracker() {
   if (tableSearchInput && tableSearchInput.value.trim()) {
     handleTableSearch(tableSearchInput.value);
   }
+
+  renderRangeTabs();
 }
 
 // Cycle states: active -> assigned -> completed -> active
@@ -622,6 +677,7 @@ btnOvertimeFilter.addEventListener('click', () => {
 // ==========================================================================
 function resetAndReturnToSetup() {
   state.tables = [];
+  activeRangeTab = null;
   localStorage.removeItem(STORAGE_KEY);
   showSetupView();
 }

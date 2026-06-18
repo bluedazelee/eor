@@ -117,6 +117,8 @@
             <div class="help-item"><span class="help-item-label">隱藏完成</span><span>點選後隱藏已完成桌次，專注於未完成部分；再次點選恢復顯示</span></div>
             <div class="help-item"><span class="help-item-label">只顯示加時</span><span>點選後只顯示有加時標記的桌次，可與上方篩選複合使用</span></div>
             <div class="help-item"><span class="help-item-label">+ / −</span><span>調整桌次卡片顯示大小：大（每列約 3 桌）→ 中（4 桌）→ 小（5 桌）；偏好設定會自動記住</span></div>
+            <div class="help-item"><span class="help-item-label">範圍篩選標籤</span><span>桌次超過 25 桌時，卡片上方自動出現範圍標籤（如「1-50 (30)」），括號內為該區段的未完成桌數；點擊標籤可快速聚焦至該桌次區段，點擊「全部」恢復顯示全部桌次</span></div>
+            <div class="help-tip">範圍篩選可與其他篩選條件複合使用；批量模式下同樣可用，搭配「全選」可快速選取特定區段的未完成桌次</div>
           </div>
 
           <div class="help-section">
@@ -240,6 +242,8 @@
           <button id="btn-select-invert" class="btn-sel-shortcut">反選</button>
           <button id="btn-selection-confirm" class="btn btn-primary btn-sel-confirm" disabled>確認</button>
         </div>
+
+        <div id="range-filter-bar" class="range-filter-bar hidden"></div>
 
         <div id="card-grid" class="card-grid">
           <!-- 卡片將在此處動態生成 -->
