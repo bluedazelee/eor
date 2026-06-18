@@ -670,6 +670,49 @@ body {
 }
 
 /* ==========================================================================
+   Range Filter Tab Bar
+   ========================================================================== */
+.range-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0;
+  flex-shrink: 0;
+}
+
+.range-filter-bar.hidden {
+  display: none;
+}
+
+.range-tab {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-sub);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .range-tab:hover {
+    border-color: rgba(255, 165, 2, 0.5);
+    color: var(--color-assigned);
+  }
+}
+
+.range-tab.active {
+  background: rgba(255, 165, 2, 0.15);
+  border-color: var(--color-assigned);
+  color: var(--color-assigned);
+  box-shadow: 0 0 8px rgba(255, 165, 2, 0.25);
+}
+
+/* ==========================================================================
    Undo / Redo Buttons
    ========================================================================== */
 .undo-redo-btns {

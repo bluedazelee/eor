@@ -110,6 +110,13 @@
 - **WHEN** 使用者在選取模式中執行快捷選取操作（全選、清除、反選）
 - **THEN** 簡要資訊列的數字 SHALL 維持進入批次模式時的數值不變（反映桌次完成狀態，非選取數量）
 
+### Requirement: selection action bar 使用固定短標籤
+selection action bar 的操作按鈕 SHALL 使用固定短標籤，不依賴 label-long/label-short span 切換機制：「全選」、「清除」、「反選」、「確認」。
+
+#### Scenario: 短標籤正確顯示
+- **WHEN** 使用者進入批量選取模式
+- **THEN** selection action bar SHALL 顯示「全選」「清除」「反選」「確認」等短標籤，每個按鈕 SHALL 僅顯示一組文字
+
 ### Requirement: 批次模式下可操作篩選器
 
 批次選取模式啟用時，compact-strip 資訊列 SHALL 包含「隱藏完成」與「只顯示加時」兩個篩選按鈕，使用者 SHALL 能在不退出批次模式的情況下切換這兩個篩選狀態。篩選按鈕的啟用（active）樣式 SHALL 與正常模式的對應按鈕保持同步。
