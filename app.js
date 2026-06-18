@@ -44,7 +44,6 @@ const progressBarFill = document.getElementById('progress-bar-fill');
 const btnHideCompleted = document.getElementById('btn-hide-completed');
 const cardGrid = document.getElementById('card-grid');
 const btnFinishRound = document.getElementById('btn-finish-round');
-const btnForceEndRound = document.getElementById('btn-force-end-round');
 const btnBatchComplete = document.getElementById('btn-batch-complete');
 const helpView = document.getElementById('help-view');
 const btnHelp = document.getElementById('btn-help');
@@ -397,11 +396,11 @@ function renderTracker() {
   progressBarFill.style.width = `${progressPercent}%`;
 
   if (completedCount === totalCount && totalCount > 0) {
-    btnFinishRound.disabled = false;
     btnFinishRound.className = 'btn btn-success';
+    btnFinishRound.textContent = '確認本輪處理完畢';
   } else {
-    btnFinishRound.disabled = true;
-    btnFinishRound.className = 'btn btn-disabled';
+    btnFinishRound.className = 'btn btn-warning';
+    btnFinishRound.textContent = '強制結束本輪';
   }
 
   if (tableSearchInput && tableSearchInput.value.trim()) {
@@ -584,15 +583,15 @@ function resetAndReturnToSetup() {
 }
 
 btnFinishRound.addEventListener('click', () => {
-  if (btnFinishRound.disabled) return;
-  const confirmReset = confirm(`確定本輪 [${formatRound(state.roundNumber)}] 負責的所有桌次皆已處理完畢？\n這將會清除當前紀錄並準備進行下一輪。`);
-  if (confirmReset) resetAndReturnToSetup();
-});
-
-btnForceEndRound.addEventListener('click', () => {
-  const incompleteCount = state.tables.filter(t => t.state !== 'completed').length;
-  const confirmForce = confirm(`確定要強制結束本輪 [${formatRound(state.roundNumber)}]？\n目前仍有 ${incompleteCount} 桌尚未完成。\n這將會清除當前紀錄並準備進行下一輪。`);
-  if (confirmForce) resetAndReturnToSetup();
+  const allDone = state.tables.length > 0 && state.tables.every(t => t.state === 'completed');
+  if (allDone) {
+    const confirmed = confirm(`確定本輪 [${formatRound(state.roundNumber)}] 負責的所有桌次皆已處理完畢？\n這將會清除當前紀錄並準備進行下一輪。`);
+    if (confirmed) resetAndReturnToSetup();
+  } else {
+    const incompleteCount = state.tables.filter(t => t.state !== 'completed').length;
+    const confirmed = confirm(`確定要強制結束本輪 [${formatRound(state.roundNumber)}]？\n目前仍有 ${incompleteCount} 桌尚未完成。\n這將會清除當前紀錄並準備進行下一輪。`);
+    if (confirmed) resetAndReturnToSetup();
+  }
 });
 
 
