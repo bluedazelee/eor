@@ -121,18 +121,19 @@
 
           <div class="help-section">
             <div class="help-section-title">七、批量設為已完成</div>
-            <div class="help-item"><span class="help-item-label">進入選取模式</span><span>點擊「批量設為已完成」按鈕後，畫面進入選取模式；上方資訊列切換顯示輪次進度與已選桌數，下方顯示操作列</span></div>
-            <div class="help-item"><span class="help-item-label">篩選器可用</span><span>批次模式中仍可點擊資訊列右側的「隱藏完成」與「只顯示加時」篩選器，縮小目標範圍後再執行全選</span></div>
+            <div class="help-item"><span class="help-item-label">進入選取模式</span><span>點擊「批量完成」按鈕後，畫面進入選取模式；上方資訊列切換顯示輪次進度與已選桌數，下方顯示操作列</span></div>
+            <div class="help-item"><span class="help-item-label">篩選器可用</span><span>批次模式中仍可點擊資訊列右側的「隱藏」與「加時」篩選器，縮小目標範圍後再執行全選</span></div>
             <div class="help-item"><span class="help-item-label">點選桌次</span><span>直接點擊桌號卡片切換選取狀態（綠框 ✓ 表示已選取），不影響桌次完成狀態</span></div>
-            <div class="help-item"><span class="help-item-label">全選未完成</span><span>一鍵選取目前顯示中所有尚未完成的桌次</span></div>
-            <div class="help-item"><span class="help-item-label">清除全選</span><span>取消所有已選取的桌次</span></div>
+            <div class="help-item"><span class="help-item-label">全選</span><span>一鍵選取目前顯示中所有尚未完成的桌次</span></div>
+            <div class="help-item"><span class="help-item-label">清除</span><span>取消所有已選取的桌次</span></div>
             <div class="help-item"><span class="help-item-label">反選</span><span>將目前顯示的桌次中，已選者取消、未選者加入</span></div>
-            <div class="help-item"><span class="help-item-label">確認執行</span><span>將所有已選取的桌次標記為已完成；未選取的桌次狀態不變</span></div>
+            <div class="help-item"><span class="help-item-label">確認</span><span>將所有已選取的桌次標記為已完成；未選取的桌次狀態不變</span></div>
             <div class="help-tip">操作完成後可點擊「↩ 復原」一步還原整批標記；搭配篩選器可快速定位目標桌次</div>
           </div>
 
           <div class="help-section">
             <div class="help-section-title">八、複製資訊</div>
+            <div class="help-item"><span class="help-item-label">📋</span><span>點擊後展開複製選單，可選擇複製以下資訊至剪貼簿</span></div>
             <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製組別、輪次與桌號範圍，例：「大師A R1 1~50」</span></div>
             <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數；無加時桌時顯示提示</span></div>
             <div class="help-item"><span class="help-item-label">剩餘桌次</span><span>複製組別、輪次、桌號範圍及剩餘桌數，不含加時桌與一般桌明細</span></div>
@@ -191,17 +192,21 @@
               <button id="btn-zoom-out" title="縮小卡片">−</button>
             </div>
             <button id="btn-batch-complete" class="btn-filter btn-filter-complete">批量完成</button>
-            <button id="btn-hide-completed" class="btn-filter">隱藏完成</button>
-            <button id="btn-overtime-filter" class="btn-filter">只顯示加時</button>
-            <button id="btn-copy-remaining" class="btn-filter btn-filter-copy">📋</button>
-            <div id="copy-menu-popup" class="copy-menu-popup" style="display:none">
-              <button id="btn-copy-range" class="copy-menu-item">本輪範圍</button>
-              <button id="btn-copy-overtime" class="copy-menu-item">加時桌次</button>
-              <button id="btn-copy-remaining-count" class="copy-menu-item">剩餘桌次</button>
-              <button id="btn-copy-detail" class="copy-menu-item">詳細資訊</button>
-              <button id="btn-copy-close" class="copy-menu-item copy-menu-close">關閉</button>
+            <div class="btn-group">
+              <button id="btn-hide-completed" class="btn-filter">隱藏完成</button>
+              <button id="btn-overtime-filter" class="btn-filter">只顯示加時</button>
             </div>
-            <button id="btn-search-toggle" class="btn-filter btn-search-toggle" title="搜尋桌號">🔍</button>
+            <div class="btn-group">
+              <button id="btn-copy-remaining" class="btn-filter btn-filter-copy">📋</button>
+              <div id="copy-menu-popup" class="copy-menu-popup" style="display:none">
+                <button id="btn-copy-range" class="copy-menu-item">本輪範圍</button>
+                <button id="btn-copy-overtime" class="copy-menu-item">加時桌次</button>
+                <button id="btn-copy-remaining-count" class="copy-menu-item">剩餘桌次</button>
+                <button id="btn-copy-detail" class="copy-menu-item">詳細資訊</button>
+                <button id="btn-copy-close" class="copy-menu-item copy-menu-close">關閉</button>
+              </div>
+              <button id="btn-search-toggle" class="btn-filter btn-search-toggle" title="搜尋桌號">🔍</button>
+            </div>
           </div>
         </div>
 
@@ -217,14 +222,8 @@
             <button id="btn-zoom-out-compact" title="縮小卡片">−</button>
           </div>
           <div class="compact-filters">
-            <button id="btn-hide-completed-compact" class="btn-filter" data-filter="hide-completed">
-              <span class="label-long">隱藏完成</span>
-              <span class="label-short">隱藏</span>
-            </button>
-            <button id="btn-overtime-filter-compact" class="btn-filter" data-filter="overtime">
-              <span class="label-long">只顯示加時</span>
-              <span class="label-short">加時</span>
-            </button>
+            <button id="btn-hide-completed-compact" class="btn-filter" data-filter="hide-completed">隱藏</button>
+            <button id="btn-overtime-filter-compact" class="btn-filter" data-filter="overtime">加時</button>
           </div>
         </div>
 
@@ -236,19 +235,10 @@
         <!-- Selection Mode Action Bar -->
         <div id="selection-action-bar" class="selection-action-bar hidden">
           <button id="btn-selection-cancel" class="btn-sel-cancel">取消</button>
-          <button id="btn-select-all-incomplete" class="btn-sel-shortcut">
-            <span class="label-long">全選未完成</span>
-            <span class="label-short">全選</span>
-          </button>
-          <button id="btn-select-clear" class="btn-sel-shortcut">
-            <span class="label-long">清除全選</span>
-            <span class="label-short">清除</span>
-          </button>
+          <button id="btn-select-all-incomplete" class="btn-sel-shortcut">全選</button>
+          <button id="btn-select-clear" class="btn-sel-shortcut">清除</button>
           <button id="btn-select-invert" class="btn-sel-shortcut">反選</button>
-          <button id="btn-selection-confirm" class="btn btn-primary btn-sel-confirm" disabled>
-            <span class="label-long">確認執行</span>
-            <span class="label-short">確認</span>
-          </button>
+          <button id="btn-selection-confirm" class="btn btn-primary btn-sel-confirm" disabled>確認</button>
         </div>
 
         <div id="card-grid" class="card-grid">
