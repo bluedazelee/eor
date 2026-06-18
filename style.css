@@ -556,9 +556,17 @@ body {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
   padding-top: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 @media (hover: hover) {
