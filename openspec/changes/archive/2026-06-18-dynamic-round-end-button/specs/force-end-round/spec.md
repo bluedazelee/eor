@@ -1,9 +1,4 @@
-# Capability: force-end-round
-
-## Purpose
-TBD
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: 強制結束本輪
 系統主畫面 MUST 提供一個動態結束按鈕。當仍有桌次未完成時，該按鈕 SHALL 顯示為「強制結束本輪」（琥珀色樣式），且始終保持可點擊狀態。當所有桌次皆已完成時，該按鈕 SHALL 自動切換為「確認本輪處理完畢」（綠色樣式）。
@@ -19,3 +14,9 @@ TBD
 #### Scenario: 使用者於確認對話框中取消強制結束
 - **WHEN** 系統顯示強制結束確認對話框，使用者點擊取消
 - **THEN** 系統 SHALL 關閉對話框，保持當前輪次狀態不變，繼續顯示主畫面
+
+## REMOVED Requirements
+
+### Requirement: 所有桌號皆已完成時強制結束按鈕仍可點擊
+**Reason**: 動態按鈕在全部完成時自動切換為「確認本輪處理完畢」模式，兩種操作底層行為相同（皆呼叫 resetAndReturnToSetup），不再需要同時顯示兩個按鈕的場景。
+**Migration**: 全部完成時點擊動態按鈕即為確認完畢操作，無需額外「強制結束」入口。
