@@ -555,30 +555,10 @@ body {
 .control-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   padding-top: 4px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* Group of filter / action buttons on the right of the control row */
-.filter-btns {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.filter-break {
-  display: none;
-  flex-basis: 100%;
-  height: 0;
-}
-
-@media (max-width: 480px) {
-  .filter-break {
-    display: block;
-  }
 }
 
 @media (hover: hover) {
@@ -684,18 +664,6 @@ body {
 /* ==========================================================================
    Undo / Redo Buttons
    ========================================================================== */
-.left-controls {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
-}
-
-.left-controls.stacked {
-  flex-direction: column;
-  align-items: center;
-}
-
 .undo-redo-btns {
   display: flex;
   align-items: center;
@@ -729,6 +697,41 @@ body {
 }
 
 /* ==========================================================================
+   Zoom Buttons
+   ========================================================================== */
+.zoom-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.zoom-btns button {
+  font-size: 1rem;
+  line-height: 1;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-sub);
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .zoom-btns button:not(.disabled):hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: var(--text-main);
+  }
+}
+
+.zoom-btns button.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ==========================================================================
    Table Cards Grid
    ========================================================================== */
 .card-grid {
@@ -745,6 +748,33 @@ body {
 
 .card-grid::-webkit-scrollbar {
   width: 6px;
+}
+
+/* Card size: medium (4 per row) */
+.card-grid.size-md {
+  grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+}
+.card-grid.size-md .num {
+  font-size: 1.3rem;
+}
+.card-grid.size-md .status-txt,
+.card-grid.size-md .time-stamp {
+  display: none;
+}
+
+/* Card size: small (5 per row) */
+.card-grid.size-sm {
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+}
+.card-grid.size-sm .num {
+  font-size: 1.0rem;
+}
+.card-grid.size-sm .status-txt,
+.card-grid.size-sm .time-stamp {
+  display: none;
+}
+.card-grid.size-sm .table-card {
+  padding: 6px;
 }
 
 .card-grid::-webkit-scrollbar-thumb {
@@ -1203,13 +1233,6 @@ body {
 }
 
 /* ==========================================================================
-   RWD Label Variants
-   ========================================================================== */
-.label-short {
-  display: none;
-}
-
-/* ==========================================================================
    Table Search Bar
    ========================================================================== */
 .table-search-bar {
@@ -1268,17 +1291,5 @@ body {
   }
   .btn {
     padding: 10px 16px;
-  }
-  .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  }
-  .table-card .num {
-    font-size: 1.5rem;
-  }
-  .label-long {
-    display: none;
-  }
-  .label-short {
-    display: inline;
   }
 }
