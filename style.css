@@ -565,6 +565,18 @@ body {
   justify-content: flex-end;
 }
 
+.filter-break {
+  display: none;
+  flex-basis: 100%;
+  height: 0;
+}
+
+@media (max-width: 480px) {
+  .filter-break {
+    display: block;
+  }
+}
+
 @media (hover: hover) {
   /* "全部設為已完成" button — completed (green) accent */
   .btn-filter-complete:hover {
