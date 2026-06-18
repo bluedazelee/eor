@@ -894,6 +894,22 @@ document.addEventListener('click', () => {
 });
 
 // ==========================================================================
+// Control Row Layout Sync
+// ==========================================================================
+function syncLeftControlsLayout() {
+  const filterBtns = document.querySelector('.filter-btns');
+  const leftControls = document.querySelector('.left-controls');
+  if (!filterBtns || !leftControls) return;
+
+  const visibleChildren = [...filterBtns.children].filter(el => el.offsetParent !== null);
+  if (visibleChildren.length < 2) return;
+
+  const firstTop = visibleChildren[0].getBoundingClientRect().top;
+  const isWrapped = visibleChildren.some(ch => Math.abs(ch.getBoundingClientRect().top - firstTop) > 2);
+  leftControls.classList.toggle('stacked', isWrapped);
+}
+
+// ==========================================================================
 // Initialization
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -901,4 +917,10 @@ document.addEventListener('DOMContentLoaded', () => {
   loadState();
   restoreGroupSelection();
   registerServiceWorker();
+
+  const filterBtns = document.querySelector('.filter-btns');
+  if (filterBtns) {
+    new ResizeObserver(syncLeftControlsLayout).observe(filterBtns);
+    syncLeftControlsLayout();
+  }
 });
