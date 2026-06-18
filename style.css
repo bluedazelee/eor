@@ -1284,42 +1284,102 @@ body {
 }
 
 /* ==========================================================================
-   Table Search Bar
+   Search Numpad Popup
    ========================================================================== */
-.table-search-bar {
-  flex-shrink: 0;
-  padding: 0 0 8px;
+.search-numpad-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.45);
 }
 
-#table-search-input {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.25);
+.search-numpad-popup {
+  position: fixed;
+  z-index: 1000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e1e35;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  width: 220px;
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.search-numpad-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-align: center;
+}
+
+.search-numpad-display {
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-sm);
-  padding: 9px 14px;
+  padding: 10px 14px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
   color: #fff;
-  font-size: 0.9rem;
-  font-family: inherit;
-  transition: border-color 0.2s ease;
+  text-align: center;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#table-search-input:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-#table-search-input::placeholder {
+.search-numpad-placeholder {
   color: var(--color-text-dim);
+  font-size: 1rem;
+  font-weight: 400;
 }
 
-#table-search-input.search-error {
-  border-color: var(--color-active);
-}
-
-.table-search-msg {
+.search-numpad-msg {
   font-size: 0.75rem;
   color: var(--color-active);
-  padding: 4px 2px 0;
+  text-align: center;
+  min-height: 1em;
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.numpad-btn {
+  padding: 12px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.numpad-btn.action {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+}
+
+@media (hover: hover) {
+  .numpad-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.numpad-btn:active {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Card highlight (search result) */

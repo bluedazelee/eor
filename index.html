@@ -229,11 +229,6 @@
           </div>
         </div>
 
-        <div class="table-search-bar hidden">
-          <input type="number" id="table-search-input" placeholder="搜尋桌號..." min="1" autocomplete="off">
-          <div id="table-search-msg" class="table-search-msg hidden"></div>
-        </div>
-
         <!-- Selection Mode Action Bar -->
         <div id="selection-action-bar" class="selection-action-bar hidden">
           <button id="btn-selection-cancel" class="btn-sel-cancel">取消</button>
@@ -258,6 +253,31 @@
     </main>
   </div>
   
+  <!-- Search numpad popup -->
+  <div id="search-numpad-overlay" class="search-numpad-overlay hidden"></div>
+  <div id="search-numpad-popup" class="search-numpad-popup hidden">
+    <div class="search-numpad-title">搜尋桌號</div>
+    <div id="search-numpad-display" class="search-numpad-display">
+      <span id="search-numpad-value" class="search-numpad-value"></span>
+      <span id="search-numpad-placeholder" class="search-numpad-placeholder">桌號…</span>
+    </div>
+    <div id="search-numpad-msg" class="search-numpad-msg hidden"></div>
+    <div class="numpad-grid">
+      <button class="numpad-btn" data-digit="1">1</button>
+      <button class="numpad-btn" data-digit="2">2</button>
+      <button class="numpad-btn" data-digit="3">3</button>
+      <button class="numpad-btn" data-digit="4">4</button>
+      <button class="numpad-btn" data-digit="5">5</button>
+      <button class="numpad-btn" data-digit="6">6</button>
+      <button class="numpad-btn" data-digit="7">7</button>
+      <button class="numpad-btn" data-digit="8">8</button>
+      <button class="numpad-btn" data-digit="9">9</button>
+      <button class="numpad-btn action" id="btn-numpad-backspace">⌫</button>
+      <button class="numpad-btn" data-digit="0">0</button>
+      <button class="numpad-btn action" id="btn-numpad-close">關閉</button>
+    </div>
+  </div>
+
   <!-- Overtime marking popup (singleton) -->
   <div id="overtime-popup" class="overtime-popup hidden">
     <div id="overtime-popup-title" class="overtime-popup-title"><span>設定加時（分鐘）</span><button id="btn-overtime-close" class="btn-overtime-close">✕</button></div>

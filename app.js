@@ -16,6 +16,8 @@ let showOvertimeOnly = false;
 let hideCompleted = false;
 let longPressTriggered = false;
 let activeRangeTab = null; // null = 全部；或 { start, end }
+let searchBuffer = '';
+let isSearchNumpadOpen = false;
 
 // Undo/Redo history (not persisted to localStorage)
 const MAX_UNDO = 20;
@@ -77,10 +79,14 @@ const btnSelectClear = document.getElementById('btn-select-clear');
 const btnSelectInvert = document.getElementById('btn-select-invert');
 
 // Search elements
-const tableSearchInput = document.getElementById('table-search-input');
-const tableSearchMsg = document.getElementById('table-search-msg');
 const btnSearchToggle = document.getElementById('btn-search-toggle');
-const tableSearchBar = document.querySelector('.table-search-bar');
+const searchNumpadOverlay = document.getElementById('search-numpad-overlay');
+const searchNumpadPopup = document.getElementById('search-numpad-popup');
+const searchNumpadValue = document.getElementById('search-numpad-value');
+const searchNumpadPlaceholder = document.getElementById('search-numpad-placeholder');
+const searchNumpadMsg = document.getElementById('search-numpad-msg');
+const btnNumpadBackspace = document.getElementById('btn-numpad-backspace');
+const btnNumpadClose = document.getElementById('btn-numpad-close');
 
 // Compact strip elements (batch mode)
 const compactRound = document.getElementById('compact-round');
@@ -480,8 +486,8 @@ function renderTracker() {
     btnFinishRound.textContent = '強制結束本輪';
   }
 
-  if (tableSearchInput && tableSearchInput.value.trim()) {
-    handleTableSearch(tableSearchInput.value);
+  if (isSearchNumpadOpen && searchBuffer) {
+    handleTableSearch(searchBuffer);
   }
 
   renderRangeTabs();
@@ -711,9 +717,9 @@ function enterSelectionMode() {
   isSelectionMode = true;
   selectedTables.clear();
 
-  // Close search bar if open
-  if (!tableSearchBar.classList.contains('hidden')) {
-    closeSearchBar();
+  // Close search numpad if open
+  if (isSearchNumpadOpen) {
+    closeSearchNumpad();
   }
 
   // Update compact strip with current progress snapshot
@@ -782,9 +788,10 @@ function clearSearchHighlight() {
   document.querySelectorAll('.table-card-highlight').forEach(el => {
     el.classList.remove('table-card-highlight');
   });
-  tableSearchInput.classList.remove('search-error');
-  tableSearchMsg.textContent = '';
-  tableSearchMsg.classList.add('hidden');
+  if (searchNumpadMsg) {
+    searchNumpadMsg.textContent = '';
+    searchNumpadMsg.classList.add('hidden');
+  }
 }
 
 function syncCompactFilterState() {
@@ -795,24 +802,32 @@ function syncCompactFilterState() {
 btnHideCompletedCompact.addEventListener('click', () => btnHideCompleted.click());
 btnOvertimeFilterCompact.addEventListener('click', () => btnOvertimeFilter.click());
 
-function openSearchBar() {
-  tableSearchBar.classList.remove('hidden');
+function openSearchNumpad() {
+  searchBuffer = '';
+  searchNumpadValue.textContent = '';
+  searchNumpadPlaceholder.classList.remove('hidden');
+  searchNumpadMsg.textContent = '';
+  searchNumpadMsg.classList.add('hidden');
+  searchNumpadOverlay.classList.remove('hidden');
+  searchNumpadPopup.classList.remove('hidden');
   btnSearchToggle.classList.add('active');
-  tableSearchInput.focus();
+  isSearchNumpadOpen = true;
 }
 
-function closeSearchBar() {
-  tableSearchBar.classList.add('hidden');
+function closeSearchNumpad() {
+  searchBuffer = '';
+  isSearchNumpadOpen = false;
+  searchNumpadOverlay.classList.add('hidden');
+  searchNumpadPopup.classList.add('hidden');
   btnSearchToggle.classList.remove('active');
-  tableSearchInput.value = '';
   clearSearchHighlight();
 }
 
 btnSearchToggle.addEventListener('click', () => {
-  if (tableSearchBar.classList.contains('hidden')) {
-    openSearchBar();
+  if (!isSearchNumpadOpen) {
+    openSearchNumpad();
   } else {
-    closeSearchBar();
+    closeSearchNumpad();
   }
 });
 
@@ -826,16 +841,15 @@ function handleTableSearch(value) {
 
   const table = state.tables.find(t => t.number === num);
   if (!table) {
-    tableSearchInput.classList.add('search-error');
-    tableSearchMsg.textContent = `找不到桌號 ${num}`;
-    tableSearchMsg.classList.remove('hidden');
+    searchNumpadMsg.textContent = `找不到桌號 ${num}`;
+    searchNumpadMsg.classList.remove('hidden');
     return;
   }
 
   const card = cardGrid.querySelector(`[data-num="${num}"]`);
   if (!card) {
-    tableSearchMsg.textContent = `桌號 ${num} 目前被篩選器隱藏`;
-    tableSearchMsg.classList.remove('hidden');
+    searchNumpadMsg.textContent = `桌號 ${num} 目前被篩選器隱藏`;
+    searchNumpadMsg.classList.remove('hidden');
     return;
   }
 
@@ -843,7 +857,35 @@ function handleTableSearch(value) {
   card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-tableSearchInput.addEventListener('input', e => handleTableSearch(e.target.value));
+function updateNumpadDisplay() {
+  if (searchBuffer) {
+    searchNumpadValue.textContent = searchBuffer;
+    searchNumpadPlaceholder.classList.add('hidden');
+  } else {
+    searchNumpadValue.textContent = '';
+    searchNumpadPlaceholder.classList.remove('hidden');
+  }
+}
+
+document.querySelectorAll('.numpad-btn[data-digit]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (searchBuffer.length >= 3) return;
+    searchBuffer += btn.dataset.digit;
+    updateNumpadDisplay();
+    clearSearchHighlight();
+    if (searchBuffer) handleTableSearch(searchBuffer);
+  });
+});
+
+btnNumpadBackspace.addEventListener('click', () => {
+  searchBuffer = searchBuffer.slice(0, -1);
+  updateNumpadDisplay();
+  clearSearchHighlight();
+  if (searchBuffer) handleTableSearch(searchBuffer);
+});
+
+btnNumpadClose.addEventListener('click', closeSearchNumpad);
+searchNumpadOverlay.addEventListener('click', closeSearchNumpad);
 
 // ==========================================================================
 // Copy Remaining Tables Info
