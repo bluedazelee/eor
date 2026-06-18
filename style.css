@@ -273,9 +273,11 @@ body {
   color: #fff;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+@media (hover: hover) {
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+  }
 }
 
 .btn-primary:active {
@@ -287,9 +289,11 @@ body {
   color: #fff;
 }
 
-.btn-success:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+@media (hover: hover) {
+  .btn-success:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+  }
 }
 
 .btn-success:active:not(:disabled) {
@@ -1002,9 +1006,11 @@ body {
   color: #fff;
 }
 
-.btn-warning:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+@media (hover: hover) {
+  .btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+  }
 }
 
 .btn-warning:active {
@@ -1066,9 +1072,11 @@ body {
   white-space: nowrap;
 }
 
-.btn-sel-cancel:hover {
-  border-color: var(--card-hover-border);
-  color: var(--text-main);
+@media (hover: hover) {
+  .btn-sel-cancel:hover {
+    border-color: var(--card-hover-border);
+    color: var(--text-main);
+  }
 }
 
 .selection-count {
@@ -1104,10 +1112,12 @@ body {
   white-space: nowrap;
 }
 
-.btn-sel-shortcut:hover {
-  border-color: var(--color-completed);
-  color: var(--color-completed);
-  background: rgba(46, 213, 115, 0.08);
+@media (hover: hover) {
+  .btn-sel-shortcut:hover {
+    border-color: var(--color-completed);
+    color: var(--color-completed);
+    background: rgba(46, 213, 115, 0.08);
+  }
 }
 
 /* Selected card state */
