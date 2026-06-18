@@ -267,10 +267,10 @@ function applyCardSize(size) {
   if (size === 'sm') cardGrid.classList.add('size-sm');
   const atMax = size === 'lg';
   const atMin = size === 'sm';
-  btnZoomIn.classList.toggle('disabled', atMax);
-  btnZoomOut.classList.toggle('disabled', atMin);
-  btnZoomInCompact.classList.toggle('disabled', atMax);
-  btnZoomOutCompact.classList.toggle('disabled', atMin);
+  btnZoomIn.classList.toggle('disabled', atMin);
+  btnZoomOut.classList.toggle('disabled', atMax);
+  btnZoomInCompact.classList.toggle('disabled', atMin);
+  btnZoomOutCompact.classList.toggle('disabled', atMax);
   localStorage.setItem(CARD_SIZE_KEY, size);
 }
 
@@ -425,9 +425,11 @@ function renderTracker() {
 
     // Overtime badge
     if (table.overtimeMinutes !== null) {
+      const m = table.overtimeMinutes;
+      const tier = m <= 3 ? 'low' : m <= 6 ? 'mid' : 'high';
       const badge = document.createElement('span');
-      badge.className = 'overtime-badge';
-      badge.textContent = `+${table.overtimeMinutes}分`;
+      badge.className = `overtime-badge overtime-badge-${tier}`;
+      badge.textContent = `+${m}分`;
       card.appendChild(badge);
     }
 
@@ -523,23 +525,23 @@ btnHideCompleted.addEventListener('click', () => {
 });
 
 btnZoomIn.addEventListener('click', () => {
-  if (currentCardSize === 'sm') applyCardSize('md');
-  else if (currentCardSize === 'md') applyCardSize('lg');
+  if (currentCardSize === 'lg') applyCardSize('md');
+  else if (currentCardSize === 'md') applyCardSize('sm');
 });
 
 btnZoomOut.addEventListener('click', () => {
-  if (currentCardSize === 'lg') applyCardSize('md');
-  else if (currentCardSize === 'md') applyCardSize('sm');
-});
-
-btnZoomInCompact.addEventListener('click', () => {
   if (currentCardSize === 'sm') applyCardSize('md');
   else if (currentCardSize === 'md') applyCardSize('lg');
 });
 
-btnZoomOutCompact.addEventListener('click', () => {
+btnZoomInCompact.addEventListener('click', () => {
   if (currentCardSize === 'lg') applyCardSize('md');
   else if (currentCardSize === 'md') applyCardSize('sm');
+});
+
+btnZoomOutCompact.addEventListener('click', () => {
+  if (currentCardSize === 'sm') applyCardSize('md');
+  else if (currentCardSize === 'md') applyCardSize('lg');
 });
 
 // ==========================================================================
