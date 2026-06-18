@@ -675,6 +675,11 @@ body {
   gap: 6px;
 }
 
+.left-controls.stacked {
+  flex-direction: column;
+  align-items: center;
+}
+
 .undo-redo-btns {
   display: flex;
   align-items: center;
