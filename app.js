@@ -18,6 +18,7 @@ let longPressTriggered = false;
 let activeRangeTab = null; // null = 全部；或 { start, end }
 let searchBuffer = '';
 let isSearchNumpadOpen = false;
+let highlightClearTimer = null;
 
 // Undo/Redo history (not persisted to localStorage)
 const MAX_UNDO = 20;
@@ -805,6 +806,9 @@ btnHideCompletedCompact.addEventListener('click', () => btnHideCompleted.click()
 btnOvertimeFilterCompact.addEventListener('click', () => btnOvertimeFilter.click());
 
 function openSearchNumpad() {
+  clearTimeout(highlightClearTimer);
+  highlightClearTimer = null;
+  clearSearchHighlight();
   searchBuffer = '';
   searchNumpadValue.textContent = '';
   searchNumpadPlaceholder.classList.remove('hidden');
@@ -822,7 +826,12 @@ function closeSearchNumpad() {
   searchNumpadOverlay.classList.add('hidden');
   searchNumpadPopup.classList.add('hidden');
   btnSearchToggle.classList.remove('active');
-  clearSearchHighlight();
+  const highlighted = cardGrid.querySelector('.table-card-highlight');
+  if (highlighted) {
+    highlightClearTimer = setTimeout(clearSearchHighlight, 1000);
+  } else {
+    clearSearchHighlight();
+  }
 }
 
 btnSearchToggle.addEventListener('click', () => {
@@ -850,6 +859,36 @@ function handleTableSearch(value) {
 
   const card = cardGrid.querySelector(`[data-num="${num}"]`);
   if (!card) {
+    const shouldClearHideCompleted = hideCompleted && table.state === 'completed';
+    const shouldClearOvertimeOnly  = showOvertimeOnly && table.overtimeMinutes === null;
+    const shouldClearRangeTab      = activeRangeTab &&
+      (table.number < activeRangeTab.start || table.number > activeRangeTab.end);
+    const anyCleared = shouldClearHideCompleted || shouldClearOvertimeOnly || shouldClearRangeTab;
+
+    if (anyCleared) {
+      if (shouldClearHideCompleted) {
+        hideCompleted = false;
+        btnHideCompleted.classList.remove('active');
+      }
+      if (shouldClearOvertimeOnly) {
+        showOvertimeOnly = false;
+        btnOvertimeFilter.classList.remove('active');
+      }
+      if (shouldClearRangeTab) {
+        activeRangeTab = null;
+      }
+      syncCompactFilterState();
+      renderTracker();
+      const revealedCard = cardGrid.querySelector(`[data-num="${num}"]`);
+      if (revealedCard) {
+        revealedCard.classList.add('table-card-highlight');
+        revealedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      searchNumpadMsg.textContent = `已清除篩選，跳轉至桌號 ${num}`;
+      searchNumpadMsg.classList.remove('hidden');
+      return;
+    }
+
     searchNumpadMsg.textContent = `桌號 ${num} 目前被篩選器隱藏`;
     searchNumpadMsg.classList.remove('hidden');
     return;
