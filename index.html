@@ -107,10 +107,10 @@
 
           <div class="help-section">
             <div class="help-section-title">五、搜尋桌號</div>
-            <div class="help-item"><span class="help-item-label">數字鍵盤</span><span>點擊按鈕列最右側 🔍 按鈕，開啟數字鍵盤彈窗；點按數字鍵後即時跳轉至對應桌次並高亮顯示；按 ⌫ 退格，點「關閉」或彈窗外區域可關閉</span></div>
-            <div class="help-item"><span class="help-item-label">找不到時</span><span>若桌號不存在，彈窗內會顯示「找不到桌號 X」提示</span></div>
-            <div class="help-item"><span class="help-item-label">篩選器遮擋</span><span>若目標桌次被篩選器隱藏（隱藏完成、只顯示加時、範圍標籤），系統會自動清除相關篩選並跳轉至目標桌次，彈窗顯示「已清除篩選，跳轉至桌號 X」</span></div>
-            <div class="help-tip">關閉彈窗後高亮會在 1 秒後自動消失；再次開啟彈窗則立即清除高亮；批次選取模式下進入後彈窗會自動關閉</div>
+            <div class="help-item"><span class="help-item-label">數字鍵盤</span><span>點擊按鈕列最右側 🔍 按鈕，開啟數字鍵盤彈窗；輸入桌號後按「確定」跳轉至對應桌次並高亮顯示；按 ⌫ 退格，點右上角 ✕ 或彈窗外區域可直接關閉</span></div>
+            <div class="help-item"><span class="help-item-label">找不到時</span><span>若桌號不存在，彈窗內會顯示「找不到桌號 X」提示，彈窗維持開啟</span></div>
+            <div class="help-item"><span class="help-item-label">篩選器遮擋</span><span>若目標桌次被篩選器隱藏（隱藏完成、只顯示加時、範圍標籤），按「確定」後會彈出確認視窗；確認後將清除相關篩選並跳轉至目標桌次；取消則保持原篩選設定</span></div>
+            <div class="help-tip">按「確定」跳轉成功或關閉彈窗後，高亮會在 1 秒後自動消失；重新開啟彈窗則立即清除高亮；批次選取模式下進入後彈窗會自動關閉</div>
           </div>
 
           <div class="help-section">
@@ -257,7 +257,7 @@
   <!-- Search numpad popup -->
   <div id="search-numpad-overlay" class="search-numpad-overlay hidden"></div>
   <div id="search-numpad-popup" class="search-numpad-popup hidden">
-    <div class="search-numpad-title">搜尋桌號</div>
+    <div class="search-numpad-title">搜尋桌號<button id="btn-numpad-x" class="btn-numpad-x">✕</button></div>
     <div id="search-numpad-display" class="search-numpad-display">
       <span id="search-numpad-value" class="search-numpad-value"></span>
       <span id="search-numpad-placeholder" class="search-numpad-placeholder">桌號…</span>
@@ -275,7 +275,17 @@
       <button class="numpad-btn" data-digit="9">9</button>
       <button class="numpad-btn action" id="btn-numpad-backspace">⌫</button>
       <button class="numpad-btn" data-digit="0">0</button>
-      <button class="numpad-btn action" id="btn-numpad-close">關閉</button>
+      <button class="numpad-btn action" id="btn-numpad-confirm">確定</button>
+    </div>
+  </div>
+
+  <!-- Filter confirmation dialog -->
+  <div id="filter-confirm-overlay" class="filter-confirm-overlay hidden"></div>
+  <div id="filter-confirm-popup" class="filter-confirm-popup hidden">
+    <p id="filter-confirm-msg" class="filter-confirm-msg"></p>
+    <div class="filter-confirm-btns">
+      <button id="btn-filter-confirm-cancel" class="btn-filter-confirm btn-filter-cancel">取消</button>
+      <button id="btn-filter-confirm-ok" class="btn-filter-confirm btn-filter-ok">確認跳轉</button>
     </div>
   </div>
 

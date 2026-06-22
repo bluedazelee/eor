@@ -19,6 +19,7 @@ let activeRangeTab = null; // null = 全部；或 { start, end }
 let searchBuffer = '';
 let isSearchNumpadOpen = false;
 let highlightClearTimer = null;
+let confirmedSearchValue = null;
 
 // Undo/Redo history (not persisted to localStorage)
 const MAX_UNDO = 20;
@@ -87,7 +88,13 @@ const searchNumpadValue = document.getElementById('search-numpad-value');
 const searchNumpadPlaceholder = document.getElementById('search-numpad-placeholder');
 const searchNumpadMsg = document.getElementById('search-numpad-msg');
 const btnNumpadBackspace = document.getElementById('btn-numpad-backspace');
-const btnNumpadClose = document.getElementById('btn-numpad-close');
+const btnNumpadX = document.getElementById('btn-numpad-x');
+const btnNumpadConfirm = document.getElementById('btn-numpad-confirm');
+const filterConfirmOverlay = document.getElementById('filter-confirm-overlay');
+const filterConfirmPopup = document.getElementById('filter-confirm-popup');
+const filterConfirmMsg = document.getElementById('filter-confirm-msg');
+const btnFilterConfirmCancel = document.getElementById('btn-filter-confirm-cancel');
+const btnFilterConfirmOk = document.getElementById('btn-filter-confirm-ok');
 
 // Compact strip elements (batch mode)
 const compactRound = document.getElementById('compact-round');
@@ -489,8 +496,9 @@ function renderTracker() {
     btnFinishRound.textContent = '強制結束本輪';
   }
 
-  if (isSearchNumpadOpen && searchBuffer) {
-    handleTableSearch(searchBuffer);
+  if (confirmedSearchValue !== null) {
+    const card = cardGrid.querySelector(`[data-num="${confirmedSearchValue}"]`);
+    if (card) card.classList.add('table-card-highlight');
   }
 
   renderRangeTabs();
@@ -809,6 +817,7 @@ function openSearchNumpad() {
   clearTimeout(highlightClearTimer);
   highlightClearTimer = null;
   clearSearchHighlight();
+  confirmedSearchValue = null;
   searchBuffer = '';
   searchNumpadValue.textContent = '';
   searchNumpadPlaceholder.classList.remove('hidden');
@@ -842,61 +851,6 @@ btnSearchToggle.addEventListener('click', () => {
   }
 });
 
-function handleTableSearch(value) {
-  clearSearchHighlight();
-  const trimmed = value.trim();
-  if (!trimmed) return;
-
-  const num = parseInt(trimmed, 10);
-  if (isNaN(num)) return;
-
-  const table = state.tables.find(t => t.number === num);
-  if (!table) {
-    searchNumpadMsg.textContent = `找不到桌號 ${num}`;
-    searchNumpadMsg.classList.remove('hidden');
-    return;
-  }
-
-  const card = cardGrid.querySelector(`[data-num="${num}"]`);
-  if (!card) {
-    const shouldClearHideCompleted = hideCompleted && table.state === 'completed';
-    const shouldClearOvertimeOnly  = showOvertimeOnly && table.overtimeMinutes === null;
-    const shouldClearRangeTab      = activeRangeTab &&
-      (table.number < activeRangeTab.start || table.number > activeRangeTab.end);
-    const anyCleared = shouldClearHideCompleted || shouldClearOvertimeOnly || shouldClearRangeTab;
-
-    if (anyCleared) {
-      if (shouldClearHideCompleted) {
-        hideCompleted = false;
-        btnHideCompleted.classList.remove('active');
-      }
-      if (shouldClearOvertimeOnly) {
-        showOvertimeOnly = false;
-        btnOvertimeFilter.classList.remove('active');
-      }
-      if (shouldClearRangeTab) {
-        activeRangeTab = null;
-      }
-      syncCompactFilterState();
-      renderTracker();
-      const revealedCard = cardGrid.querySelector(`[data-num="${num}"]`);
-      if (revealedCard) {
-        revealedCard.classList.add('table-card-highlight');
-        revealedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      searchNumpadMsg.textContent = `已清除篩選，跳轉至桌號 ${num}`;
-      searchNumpadMsg.classList.remove('hidden');
-      return;
-    }
-
-    searchNumpadMsg.textContent = `桌號 ${num} 目前被篩選器隱藏`;
-    searchNumpadMsg.classList.remove('hidden');
-    return;
-  }
-
-  card.classList.add('table-card-highlight');
-  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
 
 function updateNumpadDisplay() {
   if (searchBuffer) {
@@ -913,20 +867,88 @@ document.querySelectorAll('.numpad-btn[data-digit]').forEach(btn => {
     if (searchBuffer.length >= 3) return;
     searchBuffer += btn.dataset.digit;
     updateNumpadDisplay();
-    clearSearchHighlight();
-    if (searchBuffer) handleTableSearch(searchBuffer);
   });
 });
 
 btnNumpadBackspace.addEventListener('click', () => {
   searchBuffer = searchBuffer.slice(0, -1);
   updateNumpadDisplay();
-  clearSearchHighlight();
-  if (searchBuffer) handleTableSearch(searchBuffer);
 });
 
-btnNumpadClose.addEventListener('click', closeSearchNumpad);
+btnNumpadX.addEventListener('click', closeSearchNumpad);
 searchNumpadOverlay.addEventListener('click', closeSearchNumpad);
+
+btnNumpadConfirm.addEventListener('click', () => {
+  if (!searchBuffer) return;
+
+  const num = parseInt(searchBuffer, 10);
+  const table = state.tables.find(t => t.number === num);
+
+  if (!table) {
+    searchNumpadMsg.textContent = `找不到桌號 ${num}`;
+    searchNumpadMsg.classList.remove('hidden');
+    return;
+  }
+
+  const card = cardGrid.querySelector(`[data-num="${num}"]`);
+  if (card) {
+    confirmedSearchValue = num;
+    closeSearchNumpad();
+    card.classList.add('table-card-highlight');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    openFilterConfirmDialog(num);
+  }
+});
+
+function openFilterConfirmDialog(tableNum) {
+  filterConfirmMsg.textContent = `目標桌次目前被篩選器隱藏，確認後將清除相關篩選並跳轉至桌號 ${tableNum}`;
+  filterConfirmOverlay.classList.remove('hidden');
+  filterConfirmPopup.classList.remove('hidden');
+  filterConfirmPopup.dataset.targetNum = tableNum;
+}
+
+function closeFilterConfirmDialog() {
+  filterConfirmOverlay.classList.add('hidden');
+  filterConfirmPopup.classList.add('hidden');
+}
+
+btnFilterConfirmCancel.addEventListener('click', closeFilterConfirmDialog);
+
+btnFilterConfirmOk.addEventListener('click', () => {
+  const num = parseInt(filterConfirmPopup.dataset.targetNum, 10);
+  closeFilterConfirmDialog();
+
+  const table = state.tables.find(t => t.number === num);
+  if (table) {
+    const shouldClearHideCompleted = hideCompleted && table.state === 'completed';
+    const shouldClearOvertimeOnly  = showOvertimeOnly && table.overtimeMinutes === null;
+    const shouldClearRangeTab      = activeRangeTab &&
+      (table.number < activeRangeTab.start || table.number > activeRangeTab.end);
+
+    if (shouldClearHideCompleted) {
+      hideCompleted = false;
+      btnHideCompleted.classList.remove('active');
+    }
+    if (shouldClearOvertimeOnly) {
+      showOvertimeOnly = false;
+      btnOvertimeFilter.classList.remove('active');
+    }
+    if (shouldClearRangeTab) {
+      activeRangeTab = null;
+    }
+    syncCompactFilterState();
+  }
+
+  confirmedSearchValue = num;
+  closeSearchNumpad();
+  renderTracker();
+  const revealedCard = cardGrid.querySelector(`[data-num="${num}"]`);
+  if (revealedCard) {
+    revealedCard.classList.add('table-card-highlight');
+    revealedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+});
 
 // ==========================================================================
 // Copy Remaining Tables Info
