@@ -835,12 +835,7 @@ function closeSearchNumpad() {
   searchNumpadOverlay.classList.add('hidden');
   searchNumpadPopup.classList.add('hidden');
   btnSearchToggle.classList.remove('active');
-  const highlighted = cardGrid.querySelector('.table-card-highlight');
-  if (highlighted) {
-    highlightClearTimer = setTimeout(clearSearchHighlight, 1000);
-  } else {
-    clearSearchHighlight();
-  }
+  clearSearchHighlight();
 }
 
 btnSearchToggle.addEventListener('click', () => {
@@ -896,6 +891,8 @@ btnNumpadConfirm.addEventListener('click', () => {
     closeSearchNumpad();
     card.classList.add('table-card-highlight');
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    clearTimeout(highlightClearTimer);
+    highlightClearTimer = setTimeout(clearSearchHighlight, 1000);
   } else {
     openFilterConfirmDialog(num);
   }
@@ -947,6 +944,8 @@ btnFilterConfirmOk.addEventListener('click', () => {
   if (revealedCard) {
     revealedCard.classList.add('table-card-highlight');
     revealedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    clearTimeout(highlightClearTimer);
+    highlightClearTimer = setTimeout(clearSearchHighlight, 1000);
   }
 });
 

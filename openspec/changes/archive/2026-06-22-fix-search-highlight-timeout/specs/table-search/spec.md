@@ -1,47 +1,4 @@
-# Capability: table-search
-
-## Purpose
-在追蹤主畫面提供搜尋功能，讓使用者可快速依桌號跳轉至對應卡片並套用高亮，支援篩選器狀態下的提示。
-
-## Requirements
-
-### Requirement: 搜尋列位置與顯示
-
-追蹤主畫面的 control-row 最右側 SHALL 顯示一個搜尋 icon 按鈕（`#btn-search-toggle`）。點擊後 SHALL 開啟數字鍵盤彈窗（`search-numpad-popup`），icon 按鈕呈啟用樣式。
-
-numpad 標題列右上角 SHALL 顯示圓形小關閉按鈕（`#btn-numpad-x`）；底部按鍵列最右欄 SHALL 顯示「確定」按鈕（`#btn-numpad-confirm`）。
-
-點擊「確定」SHALL 執行搜尋邏輯（見搜尋跳轉與高亮、搜尋結果與現有篩選器的關係）。點擊 `#btn-numpad-x`、overlay 或再次點擊 icon 按鈕 SHALL 直接關閉彈窗，若有高亮卡片則 1 秒後消失。批次選取模式啟用期間，若彈窗為開啟狀態 SHALL 強制關閉。
-
-#### Scenario: 進入追蹤主畫面時彈窗預設關閉
-
-- **WHEN** 使用者進入追蹤主畫面
-- **THEN** 搜尋 icon 按鈕 SHALL 顯示於 control-row 最右側，數字鍵盤彈窗 SHALL 為隱藏狀態
-
-#### Scenario: 點擊搜尋 icon 開啟彈窗
-
-- **WHEN** 使用者點擊 control-row 的搜尋 icon 按鈕
-- **THEN** 數字鍵盤彈窗 SHALL 開啟，icon 按鈕 SHALL 呈現啟用樣式；系統鍵盤 SHALL NOT 被喚起；任何既有高亮 SHALL 立即清除
-
-#### Scenario: 點擊 ✕ 或 overlay 關閉彈窗
-
-- **WHEN** 彈窗已開啟，使用者點擊 `#btn-numpad-x` 或彈窗外 overlay 區域
-- **THEN** 彈窗 SHALL 關閉；若有高亮卡片，高亮 SHALL 在 1 秒後消失；icon 按鈕恢復未啟用樣式
-
-#### Scenario: 再次點擊搜尋 icon 關閉彈窗
-
-- **WHEN** 彈窗已開啟，使用者再次點擊搜尋 icon 按鈕
-- **THEN** 彈窗 SHALL 關閉；若有高亮卡片，高亮 SHALL 在 1 秒後消失
-
-#### Scenario: 批次模式強制關閉彈窗
-
-- **WHEN** 使用者進入批次選取模式，此時數字鍵盤彈窗為開啟狀態
-- **THEN** 彈窗 SHALL 強制關閉，高亮狀態 SHALL 立即清除
-
-#### Scenario: 批次模式結束後搜尋 icon 恢復可見
-
-- **WHEN** 使用者退出批次選取模式
-- **THEN** 搜尋 icon 按鈕 SHALL 重新可點擊，彈窗維持關閉狀態
+## MODIFIED Requirements
 
 ### Requirement: 搜尋跳轉與高亮
 
