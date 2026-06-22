@@ -1,9 +1,4 @@
-# Capability: table-search
-
-## Purpose
-在追蹤主畫面提供搜尋功能，讓使用者可快速依桌號跳轉至對應卡片並套用高亮，支援篩選器狀態下的提示。
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: 搜尋列位置與顯示
 
@@ -85,3 +80,10 @@ numpad 標題列右上角 SHALL 顯示圓形小關閉按鈕（`#btn-numpad-x`）
 
 - **WHEN** 確認提示視窗已顯示，使用者點擊「取消」
 - **THEN** 系統 SHALL 關閉確認視窗，numpad SHALL 維持開啟，篩選設定 SHALL 不變，不執行捲動
+
+## REMOVED Requirements
+
+### Requirement: 清空搜尋
+
+**Reason**: 搜尋改為確認制後，buffer 內容不再即時觸發搜尋或高亮；高亮生命週期由 numpad 開啟 / 關閉事件管理，與 buffer 是否為空無關。
+**Migration**: 不適用（純 UI 行為，無資料遷移）。
