@@ -859,7 +859,7 @@ function updateNumpadDisplay() {
 
 document.querySelectorAll('.numpad-btn[data-digit]').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (searchBuffer.length >= 3) return;
+    if (searchBuffer.length >= 4) return;
     searchBuffer += btn.dataset.digit;
     updateNumpadDisplay();
   });
