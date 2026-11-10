@@ -443,28 +443,23 @@ function renderTracker() {
 
     // Selection mode overlay
     if (isSelectionMode && selectedTables.has(table.number)) {
-      card.classList.add('table-card-selected');
-      const check = document.createElement('span');
-      check.className = 'selection-check';
-      check.textContent = '✓';
-      card.appendChild(check);
+      syncCardSelectionDOM(card, true);
     }
 
     // Click: toggle selection in selection mode, otherwise cycle state
     card.addEventListener('click', () => {
       if (isSelectionMode) {
-        if (selectedTables.has(table.number)) {
-          selectedTables.delete(table.number);
-          card.classList.remove('table-card-selected');
-          card.querySelector('.selection-check')?.remove();
-        } else {
-          selectedTables.add(table.number);
-          card.classList.add('table-card-selected');
-          const check = document.createElement('span');
-          check.className = 'selection-check';
-          check.textContent = '✓';
-          card.appendChild(check);
+        if (suppressNextSelectionClick) {
+          suppressNextSelectionClick = false;
+          return;
         }
+        const nextSelected = !selectedTables.has(table.number);
+        if (nextSelected) {
+          selectedTables.add(table.number);
+        } else {
+          selectedTables.delete(table.number);
+        }
+        syncCardSelectionDOM(card, nextSelected);
         updateSelectionBar();
         return;
       }
@@ -718,15 +713,257 @@ btnFinishRound.addEventListener('click', () => {
 let isSelectionMode = false;
 const selectedTables = new Set();
 
+// Drag-selection state (batch mode only)
+const DRAG_HOLD_MS = 200;
+const DRAG_MOVE_TOLERANCE = 10;
+const AUTO_SCROLL_EDGE_PX = 48;
+const AUTO_SCROLL_MAX_SPEED = 10;
+
+let dragHoldTimer = null;
+let isDragSelecting = false;
+let suppressNextSelectionClick = false;
+let suppressClickResetTimer = null;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragLastClientX = 0;
+let dragLastClientY = 0;
+let dragVisibleCards = [];
+let dragStartIndex = -1;
+let dragCurrentEndIndex = -1;
+let dragTargetSelected = true;
+let dragStartIsCompleted = false;
+let dragInitialSelection = new Set();
+let dragAutoScrollRaf = null;
+
+function syncCardSelectionDOM(card, isSelected) {
+  if (isSelected) {
+    card.classList.add('table-card-selected');
+    if (!card.querySelector('.selection-check')) {
+      const check = document.createElement('span');
+      check.className = 'selection-check';
+      check.textContent = '✓';
+      card.appendChild(check);
+    }
+  } else {
+    card.classList.remove('table-card-selected');
+    card.querySelector('.selection-check')?.remove();
+  }
+}
+
 function updateSelectionBar() {
   const n = selectedTables.size;
   selectionCount.textContent = `已選 ${n} 桌`;
   btnSelectionConfirm.disabled = n === 0;
 }
 
+function stopDragAutoScroll() {
+  if (dragAutoScrollRaf !== null) {
+    cancelAnimationFrame(dragAutoScrollRaf);
+    dragAutoScrollRaf = null;
+  }
+}
+
+function cleanupDragSelection(keepClickSuppression = false) {
+  if (dragHoldTimer !== null) {
+    clearTimeout(dragHoldTimer);
+    dragHoldTimer = null;
+  }
+  stopDragAutoScroll();
+  if (isDragSelecting) {
+    isDragSelecting = false;
+    cardGrid.classList.remove('drag-selecting');
+    cardGrid.querySelectorAll('.table-card-drag-anchor').forEach(el => {
+      el.classList.remove('table-card-drag-anchor');
+    });
+  }
+  dragVisibleCards = [];
+  dragStartIndex = -1;
+  dragCurrentEndIndex = -1;
+  if (!keepClickSuppression) {
+    suppressNextSelectionClick = false;
+    if (suppressClickResetTimer !== null) {
+      clearTimeout(suppressClickResetTimer);
+      suppressClickResetTimer = null;
+    }
+  }
+}
+
+function applyDragRangeSelection(endIndex) {
+  dragCurrentEndIndex = endIndex;
+  const minIdx = Math.min(dragStartIndex, endIndex);
+  const maxIdx = Math.max(dragStartIndex, endIndex);
+
+  selectedTables.clear();
+  dragInitialSelection.forEach(n => selectedTables.add(n));
+
+  for (let i = minIdx; i <= maxIdx; i++) {
+    const item = dragVisibleCards[i];
+    if (item.isCompleted === dragStartIsCompleted) {
+      if (dragTargetSelected) {
+        selectedTables.add(item.num);
+      } else {
+        selectedTables.delete(item.num);
+      }
+    }
+  }
+
+  dragVisibleCards.forEach(item => {
+    syncCardSelectionDOM(item.card, selectedTables.has(item.num));
+  });
+  updateSelectionBar();
+}
+
+function updateDragTargetAtPoint(clientX, clientY) {
+  const el = document.elementFromPoint(clientX, clientY);
+  const targetCard = el ? el.closest('.table-card') : null;
+  if (targetCard && cardGrid.contains(targetCard)) {
+    const idx = dragVisibleCards.findIndex(item => item.card === targetCard);
+    if (idx !== -1 && idx !== dragCurrentEndIndex) {
+      applyDragRangeSelection(idx);
+    }
+  }
+}
+
+function computeAutoScrollStep(clientY) {
+  const rect = cardGrid.getBoundingClientRect();
+  if (clientY < rect.top + AUTO_SCROLL_EDGE_PX && cardGrid.scrollTop > 0) {
+    const ratio = Math.min(1, Math.max(0.15, (rect.top + AUTO_SCROLL_EDGE_PX - clientY) / AUTO_SCROLL_EDGE_PX));
+    return -Math.max(1, Math.round(AUTO_SCROLL_MAX_SPEED * ratio));
+  }
+  const maxScrollTop = cardGrid.scrollHeight - cardGrid.clientHeight;
+  if (clientY > rect.bottom - AUTO_SCROLL_EDGE_PX && cardGrid.scrollTop < maxScrollTop) {
+    const ratio = Math.min(1, Math.max(0.15, (clientY - (rect.bottom - AUTO_SCROLL_EDGE_PX)) / AUTO_SCROLL_EDGE_PX));
+    return Math.max(1, Math.round(AUTO_SCROLL_MAX_SPEED * ratio));
+  }
+  return 0;
+}
+
+function runDragAutoScrollLoop() {
+  if (!isDragSelecting) {
+    dragAutoScrollRaf = null;
+    return;
+  }
+  const step = computeAutoScrollStep(dragLastClientY);
+  if (step === 0) {
+    dragAutoScrollRaf = null;
+    return;
+  }
+  cardGrid.scrollTop += step;
+  updateDragTargetAtPoint(dragLastClientX, dragLastClientY);
+  dragAutoScrollRaf = requestAnimationFrame(runDragAutoScrollLoop);
+}
+
+function updateDragAutoScroll(clientY) {
+  const step = computeAutoScrollStep(clientY);
+  if (step !== 0 && dragAutoScrollRaf === null) {
+    dragAutoScrollRaf = requestAnimationFrame(runDragAutoScrollLoop);
+  } else if (step === 0 && dragAutoScrollRaf !== null) {
+    stopDragAutoScroll();
+  }
+}
+
+function handleDragMove(clientX, clientY) {
+  if (dragHoldTimer !== null) {
+    const dist = Math.hypot(clientX - dragStartX, clientY - dragStartY);
+    if (dist > DRAG_MOVE_TOLERANCE) {
+      clearTimeout(dragHoldTimer);
+      dragHoldTimer = null;
+    }
+    return;
+  }
+  if (!isDragSelecting) return;
+
+  dragLastClientX = clientX;
+  dragLastClientY = clientY;
+  updateDragTargetAtPoint(clientX, clientY);
+  updateDragAutoScroll(clientY);
+}
+
+function finishDragGesture() {
+  const wasDragging = isDragSelecting;
+  cleanupDragSelection(wasDragging);
+  if (wasDragging) {
+    if (suppressClickResetTimer !== null) clearTimeout(suppressClickResetTimer);
+    suppressClickResetTimer = setTimeout(() => {
+      suppressNextSelectionClick = false;
+      suppressClickResetTimer = null;
+    }, 100);
+  }
+}
+
+cardGrid.addEventListener('pointerdown', e => {
+  if (!isSelectionMode) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  const card = e.target.closest('.table-card');
+  if (!card || !cardGrid.contains(card)) return;
+
+  cleanupDragSelection(false);
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+  dragLastClientX = e.clientX;
+  dragLastClientY = e.clientY;
+
+  dragHoldTimer = setTimeout(() => {
+    dragHoldTimer = null;
+    if (!isSelectionMode) return;
+
+    dragVisibleCards = Array.from(cardGrid.querySelectorAll('.table-card')).map(el => ({
+      card: el,
+      num: parseInt(el.dataset.num, 10),
+      isCompleted: el.classList.contains('state-completed')
+    }));
+    dragStartIndex = dragVisibleCards.findIndex(item => item.card === card);
+    if (dragStartIndex === -1) return;
+
+    isDragSelecting = true;
+    suppressNextSelectionClick = true;
+    cardGrid.classList.add('drag-selecting');
+    card.classList.add('table-card-drag-anchor');
+    if (navigator.vibrate) {
+      try { navigator.vibrate(15); } catch {}
+    }
+
+    dragInitialSelection = new Set(selectedTables);
+    const startItem = dragVisibleCards[dragStartIndex];
+    dragTargetSelected = !dragInitialSelection.has(startItem.num);
+    dragStartIsCompleted = startItem.isCompleted;
+
+    applyDragRangeSelection(dragStartIndex);
+  }, DRAG_HOLD_MS);
+});
+
+window.addEventListener('pointermove', e => {
+  if (!isSelectionMode) return;
+  handleDragMove(e.clientX, e.clientY);
+});
+
+cardGrid.addEventListener('touchmove', e => {
+  if (!isSelectionMode) return;
+  if (isDragSelecting) {
+    if (e.cancelable) e.preventDefault();
+    if (e.touches && e.touches.length > 0) {
+      handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  } else if (dragHoldTimer !== null && e.touches && e.touches.length > 0) {
+    handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
+  }
+}, { passive: false });
+
+window.addEventListener('pointerup', finishDragGesture);
+window.addEventListener('pointercancel', finishDragGesture);
+window.addEventListener('touchend', finishDragGesture);
+window.addEventListener('touchcancel', finishDragGesture);
+
+cardGrid.addEventListener('contextmenu', e => {
+  if (isSelectionMode) {
+    e.preventDefault();
+  }
+});
+
 function enterSelectionMode() {
   isSelectionMode = true;
   selectedTables.clear();
+  cleanupDragSelection(false);
 
   // Close search numpad if open
   if (isSearchNumpadOpen) {
@@ -746,6 +983,7 @@ function enterSelectionMode() {
 }
 
 function exitSelectionMode() {
+  cleanupDragSelection(false);
   isSelectionMode = false;
   selectedTables.clear();
   trackerView.classList.remove('selection-mode');
