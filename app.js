@@ -52,6 +52,7 @@ const cardGrid = document.getElementById('card-grid');
 const rangeFilterBar = document.getElementById('range-filter-bar');
 const btnFinishRound = document.getElementById('btn-finish-round');
 const btnBatchComplete = document.getElementById('btn-batch-complete');
+const btnPatrolAudit = document.getElementById('btn-patrol-audit');
 const helpView = document.getElementById('help-view');
 const btnHelp = document.getElementById('btn-help');
 const btnHelpBack = document.getElementById('btn-help-back');
@@ -95,6 +96,14 @@ const filterConfirmPopup = document.getElementById('filter-confirm-popup');
 const filterConfirmMsg = document.getElementById('filter-confirm-msg');
 const btnFilterConfirmCancel = document.getElementById('btn-filter-confirm-cancel');
 const btnFilterConfirmOk = document.getElementById('btn-filter-confirm-ok');
+
+// Patrol cross-segment scope dialog elements
+const patrolScopeOverlay = document.getElementById('patrol-scope-overlay');
+const patrolScopePopup = document.getElementById('patrol-scope-popup');
+const patrolScopeMsg = document.getElementById('patrol-scope-msg');
+const btnPatrolScopeAll = document.getElementById('btn-patrol-scope-all');
+const btnPatrolScopeCurrent = document.getElementById('btn-patrol-scope-current');
+const btnPatrolScopeCancel = document.getElementById('btn-patrol-scope-cancel');
 
 // Compact strip elements (batch mode)
 const compactRound = document.getElementById('compact-round');
@@ -441,8 +450,8 @@ function renderTracker() {
       card.appendChild(badge);
     }
 
-    // Selection mode overlay
-    if (isSelectionMode && selectedTables.has(table.number)) {
+    // Selection mode overlay (completed tables are locked and never selected)
+    if (isSelectionMode && table.state !== 'completed' && selectedTables.has(table.number)) {
       syncCardSelectionDOM(card, true);
     }
 
@@ -451,6 +460,9 @@ function renderTracker() {
       if (isSelectionMode) {
         if (suppressNextSelectionClick) {
           suppressNextSelectionClick = false;
+          return;
+        }
+        if (table.state === 'completed') {
           return;
         }
         const nextSelected = !selectedTables.has(table.number);
@@ -497,6 +509,9 @@ function renderTracker() {
   }
 
   renderRangeTabs();
+  if (isSelectionMode) {
+    updateSelectionBar();
+  }
 }
 
 // Cycle states: active -> assigned -> completed -> active
@@ -708,9 +723,10 @@ btnFinishRound.addEventListener('click', () => {
 
 
 // ==========================================================================
-// Batch Complete — Selection Mode
+// Batch Complete & Patrol Audit — Selection Mode
 // ==========================================================================
 let isSelectionMode = false;
+let selectionModeType = null; // 'complete' | 'patrol' | null
 const selectedTables = new Set();
 
 // Drag-selection state (batch mode only)
@@ -731,19 +747,42 @@ let dragVisibleCards = [];
 let dragStartIndex = -1;
 let dragCurrentEndIndex = -1;
 let dragTargetSelected = true;
-let dragStartIsCompleted = false;
 let dragInitialSelection = new Set();
 let dragAutoScrollRaf = null;
+
+function getIncompleteTableNums(ignoreRangeTab = false) {
+  return state.tables
+    .filter(table => {
+      if (table.state === 'completed') return false;
+      const passesOvertimeFilter = showOvertimeOnly ? table.overtimeMinutes !== null : true;
+      const passesRangeFilter = (!ignoreRangeTab && activeRangeTab)
+        ? (table.number >= activeRangeTab.start && table.number <= activeRangeTab.end)
+        : true;
+      return passesOvertimeFilter && passesRangeFilter;
+    })
+    .map(table => table.number);
+}
+
+function hasOutOfRangeSelectedTables() {
+  if (!activeRangeTab || selectedTables.size === 0) return false;
+  for (const num of selectedTables) {
+    if (num < activeRangeTab.start || num > activeRangeTab.end) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function syncCardSelectionDOM(card, isSelected) {
   if (isSelected) {
     card.classList.add('table-card-selected');
-    if (!card.querySelector('.selection-check')) {
-      const check = document.createElement('span');
+    let check = card.querySelector('.selection-check');
+    if (!check) {
+      check = document.createElement('span');
       check.className = 'selection-check';
-      check.textContent = '✓';
       card.appendChild(check);
     }
+    check.textContent = selectionModeType === 'patrol' ? '⏳' : '✓';
   } else {
     card.classList.remove('table-card-selected');
     card.querySelector('.selection-check')?.remove();
@@ -752,8 +791,17 @@ function syncCardSelectionDOM(card, isSelected) {
 
 function updateSelectionBar() {
   const n = selectedTables.size;
-  selectionCount.textContent = `已選 ${n} 桌`;
-  btnSelectionConfirm.disabled = n === 0;
+  if (selectionModeType === 'patrol') {
+    selectionCount.textContent = `對戰中 ${n} 桌`;
+    const visibleIncompleteCount = getIncompleteTableNums(false).length;
+    const allRangeIncompleteCount = hasOutOfRangeSelectedTables()
+      ? getIncompleteTableNums(true).length
+      : visibleIncompleteCount;
+    btnSelectionConfirm.disabled = visibleIncompleteCount === 0 && allRangeIncompleteCount === 0;
+  } else {
+    selectionCount.textContent = `已選 ${n} 桌`;
+    btnSelectionConfirm.disabled = n === 0;
+  }
 }
 
 function stopDragAutoScroll() {
@@ -798,7 +846,7 @@ function applyDragRangeSelection(endIndex) {
 
   for (let i = minIdx; i <= maxIdx; i++) {
     const item = dragVisibleCards[i];
-    if (item.isCompleted === dragStartIsCompleted) {
+    if (!item.isCompleted) {
       if (dragTargetSelected) {
         selectedTables.add(item.num);
       } else {
@@ -808,7 +856,9 @@ function applyDragRangeSelection(endIndex) {
   }
 
   dragVisibleCards.forEach(item => {
-    syncCardSelectionDOM(item.card, selectedTables.has(item.num));
+    if (!item.isCompleted) {
+      syncCardSelectionDOM(item.card, selectedTables.has(item.num));
+    }
   });
   updateSelectionBar();
 }
@@ -896,6 +946,7 @@ cardGrid.addEventListener('pointerdown', e => {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const card = e.target.closest('.table-card');
   if (!card || !cardGrid.contains(card)) return;
+  if (card.classList.contains('state-completed')) return;
 
   cleanupDragSelection(false);
   dragStartX = e.clientX;
@@ -906,6 +957,7 @@ cardGrid.addEventListener('pointerdown', e => {
   dragHoldTimer = setTimeout(() => {
     dragHoldTimer = null;
     if (!isSelectionMode) return;
+    if (card.classList.contains('state-completed')) return;
 
     dragVisibleCards = Array.from(cardGrid.querySelectorAll('.table-card')).map(el => ({
       card: el,
@@ -913,7 +965,7 @@ cardGrid.addEventListener('pointerdown', e => {
       isCompleted: el.classList.contains('state-completed')
     }));
     dragStartIndex = dragVisibleCards.findIndex(item => item.card === card);
-    if (dragStartIndex === -1) return;
+    if (dragStartIndex === -1 || dragVisibleCards[dragStartIndex].isCompleted) return;
 
     isDragSelecting = true;
     suppressNextSelectionClick = true;
@@ -926,7 +978,6 @@ cardGrid.addEventListener('pointerdown', e => {
     dragInitialSelection = new Set(selectedTables);
     const startItem = dragVisibleCards[dragStartIndex];
     dragTargetSelected = !dragInitialSelection.has(startItem.num);
-    dragStartIsCompleted = startItem.isCompleted;
 
     applyDragRangeSelection(dragStartIndex);
   }, DRAG_HOLD_MS);
@@ -960,10 +1011,43 @@ cardGrid.addEventListener('contextmenu', e => {
   }
 });
 
-function enterSelectionMode() {
+function closePatrolScopeDialog() {
+  patrolScopeOverlay.classList.add('hidden');
+  patrolScopePopup.classList.add('hidden');
+}
+
+function openPatrolScopeDialog() {
+  const curRangeStr = activeRangeTab ? `${activeRangeTab.start}-${activeRangeTab.end}` : '';
+  const allRangeStr = `${state.startTable}-${state.endTable}`;
+  patrolScopeMsg.textContent = `偵測到其他範圍區段也有已選取的對戰中桌次，請選擇要設為「已完成」的結算範圍：`;
+  btnPatrolScopeAll.textContent = `全部區段 (${allRangeStr})`;
+  btnPatrolScopeCurrent.textContent = `僅目前區段 (${curRangeStr})`;
+  patrolScopeOverlay.classList.remove('hidden');
+  patrolScopePopup.classList.remove('hidden');
+}
+
+function executePatrolComplete(candidateIncompleteNums) {
+  const targetsToComplete = new Set(
+    candidateIncompleteNums.filter(num => !selectedTables.has(num))
+  );
+  if (targetsToComplete.size > 0) {
+    commitState();
+    state.tables.forEach(t => {
+      if (targetsToComplete.has(t.number)) {
+        t.state = 'completed';
+      }
+    });
+    saveState();
+  }
+  exitSelectionMode();
+}
+
+function enterSelectionMode(mode = 'complete') {
   isSelectionMode = true;
+  selectionModeType = mode === 'patrol' ? 'patrol' : 'complete';
   selectedTables.clear();
   cleanupDragSelection(false);
+  closePatrolScopeDialog();
 
   // Close search numpad if open
   if (isSearchNumpadOpen) {
@@ -976,6 +1060,7 @@ function enterSelectionMode() {
   compactProgress.textContent = `${completedCount}/${state.tables.length}`;
 
   trackerView.classList.add('selection-mode');
+  trackerView.classList.toggle('patrol-mode', selectionModeType === 'patrol');
   selectionActionBar.classList.remove('hidden');
   updateSelectionBar();
   syncCompactFilterState();
@@ -984,25 +1069,68 @@ function enterSelectionMode() {
 
 function exitSelectionMode() {
   cleanupDragSelection(false);
+  closePatrolScopeDialog();
   isSelectionMode = false;
+  selectionModeType = null;
   selectedTables.clear();
-  trackerView.classList.remove('selection-mode');
+  trackerView.classList.remove('selection-mode', 'patrol-mode');
   selectionActionBar.classList.add('hidden');
   renderTracker();
 }
 
-btnBatchComplete.addEventListener('click', enterSelectionMode);
+btnBatchComplete.addEventListener('click', () => enterSelectionMode('complete'));
+btnPatrolAudit.addEventListener('click', () => enterSelectionMode('patrol'));
 
 btnSelectionCancel.addEventListener('click', exitSelectionMode);
 
 btnSelectionConfirm.addEventListener('click', () => {
+  if (selectionModeType === 'patrol') {
+    const visibleIncompleteNums = getIncompleteTableNums(false);
+    if (selectedTables.size === 0) {
+      if (visibleIncompleteNums.length === 0) return;
+      const confirmed = confirm(
+        `目前未選取任何對戰中桌次，確定要將目前顯示範圍內的 ${visibleIncompleteNums.length} 個未完成桌次全部設為「已完成」嗎？`
+      );
+      if (!confirmed) return;
+      executePatrolComplete(visibleIncompleteNums);
+      return;
+    }
+
+    if (hasOutOfRangeSelectedTables()) {
+      openPatrolScopeDialog();
+      return;
+    }
+
+    executePatrolComplete(visibleIncompleteNums);
+    return;
+  }
+
   if (selectedTables.size === 0) return;
   commitState();
-  state.tables.forEach(t => { if (selectedTables.has(t.number)) t.state = 'completed'; });
+  state.tables.forEach(t => {
+    if (t.state !== 'completed' && selectedTables.has(t.number)) {
+      t.state = 'completed';
+    }
+  });
   saveState();
   renderTracker();
   exitSelectionMode();
 });
+
+btnPatrolScopeAll.addEventListener('click', () => {
+  closePatrolScopeDialog();
+  const allIncompleteNums = getIncompleteTableNums(true);
+  executePatrolComplete(allIncompleteNums);
+});
+
+btnPatrolScopeCurrent.addEventListener('click', () => {
+  closePatrolScopeDialog();
+  const visibleIncompleteNums = getIncompleteTableNums(false);
+  executePatrolComplete(visibleIncompleteNums);
+});
+
+btnPatrolScopeCancel.addEventListener('click', closePatrolScopeDialog);
+patrolScopeOverlay.addEventListener('click', closePatrolScopeDialog);
 
 btnSelectAllIncomplete.addEventListener('click', () => {
   const visibleIncomplete = Array.from(cardGrid.querySelectorAll('.table-card'))
@@ -1020,9 +1148,10 @@ btnSelectClear.addEventListener('click', () => {
 });
 
 btnSelectInvert.addEventListener('click', () => {
-  const visibleNums = Array.from(cardGrid.querySelectorAll('.table-card'))
+  const visibleIncompleteNums = Array.from(cardGrid.querySelectorAll('.table-card'))
+    .filter(card => !card.classList.contains('state-completed'))
     .map(card => parseInt(card.dataset.num, 10));
-  visibleNums.forEach(n => {
+  visibleIncompleteNums.forEach(n => {
     if (selectedTables.has(n)) selectedTables.delete(n);
     else selectedTables.add(n);
   });

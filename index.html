@@ -125,18 +125,29 @@
           <div class="help-section">
             <div class="help-section-title">七、批量設為已完成</div>
             <div class="help-item"><span class="help-item-label">進入選取模式</span><span>點擊「批量完成」按鈕後，畫面進入選取模式；上方資訊列切換顯示輪次進度與已選桌數，下方顯示操作列</span></div>
+            <div class="help-item"><span class="help-item-label">鎖定已完成</span><span>選取模式中，「已完成」的桌次會自動鎖定不可選取（單點、滑選與反選皆自動略過已完成桌次）</span></div>
             <div class="help-item"><span class="help-item-label">篩選器可用</span><span>批次模式中仍可點擊資訊列右側的「隱藏」與「加時」篩選器，縮小目標範圍後再執行全選</span></div>
-            <div class="help-item"><span class="help-item-label">點選桌次</span><span>直接點擊桌號卡片切換選取狀態（綠框 ✓ 表示已選取），不影響桌次完成狀態</span></div>
-            <div class="help-item"><span class="help-item-label">滑動多選</span><span>短暫按住卡片（約 0.2 秒）後滑動，可依起點狀態連續選取或取消選取區間內的桌次（直接滑動則維持上下捲動畫面）。滑選時「尚未結束」與「已分配」視為相同狀態，不同完成狀態的桌次會自動略過；手指未放開前往回滑可即時退回，滑至畫面上下邊緣時會自動捲動列表</span></div>
+            <div class="help-item"><span class="help-item-label">點選桌次</span><span>直接點擊未完成的桌號卡片切換選取狀態（綠框 ✓ 表示已選取），不影響桌次完成狀態</span></div>
+            <div class="help-item"><span class="help-item-label">滑動多選</span><span>短暫按住未完成卡片（約 0.2 秒）後滑動，可依起點狀態連續選取或取消選取區間內的未完成桌次（直接滑動則維持上下捲動畫面）。滑選時「尚未結束」與「已分配」視為相同狀態，已完成桌次會自動略過；手指未放開前往回滑可即時退回，滑至畫面上下邊緣時會自動捲動列表</span></div>
             <div class="help-item"><span class="help-item-label">全選</span><span>一鍵選取目前顯示中所有尚未完成的桌次</span></div>
             <div class="help-item"><span class="help-item-label">清除</span><span>取消所有已選取的桌次</span></div>
-            <div class="help-item"><span class="help-item-label">反選</span><span>將目前顯示的桌次中，已選者取消、未選者加入</span></div>
+            <div class="help-item"><span class="help-item-label">反選</span><span>僅針對目前顯示中尚未完成的桌次，將已選者取消、未選者加入（自動跳過已完成桌次）</span></div>
             <div class="help-item"><span class="help-item-label">確認</span><span>將所有已選取的桌次標記為已完成；未選取的桌次狀態不變</span></div>
             <div class="help-tip">操作完成後可點擊「↩ 復原」一步還原整批標記；搭配篩選器可快速定位目標桌次</div>
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">八、複製資訊</div>
+            <div class="help-section-title">八、巡場盤點（點選對戰中桌次）</div>
+            <div class="help-item"><span class="help-item-label">進入盤點模式</span><span>點擊「巡場盤點」按鈕進入盤點模式；上方資訊列顯示「對戰中 N 桌」，已完成桌次同樣鎖定不可選取</span></div>
+            <div class="help-item"><span class="help-item-label">點名對戰桌</span><span>直接點選（或短壓 0.2 秒滑選）場上仍在進行對戰的未完成桌次（橘框 ⏳ 表示對戰中保留）</span></div>
+            <div class="help-item"><span class="help-item-label">完成其餘桌次</span><span>按下「確認」後，系統會將目前顯示範圍內「未被選取」的所有未完成桌次一鍵設為「已完成」；被選取的對戰中桌次則維持其原本狀態（尚未結束或已分配）</span></div>
+            <div class="help-item"><span class="help-item-label">跨區段結算</span><span>若使用範圍標籤在多個區段選取了對戰中桌次，切回「全部」按確認可一次結算全場；若停留在單一區段直接按「確認」，系統會彈出視窗讓您選擇結算「全部區段」或「僅目前區段」</span></div>
+            <div class="help-item"><span class="help-item-label">全場皆完賽</span><span>若巡場發現 0 桌仍在對戰，不選取任何桌次直接按「確認」，經二次確認提示後即可將目前顯示範圍內所有未完成桌次全部設為已完成</span></div>
+            <div class="help-tip">巡場盤點同樣支援全選、清除、反選快捷鍵，結算後亦可點擊「↩ 復原」一步還原</div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">九、複製資訊</div>
             <div class="help-item"><span class="help-item-label">📋</span><span>點擊後展開複製選單，可選擇複製以下資訊至剪貼簿</span></div>
             <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製組別、輪次與桌號範圍，例：「大師A R1 1~50」</span></div>
             <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數；無加時桌時顯示提示</span></div>
@@ -145,20 +156,20 @@
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">九、復原與重做</div>
+            <div class="help-section-title">十、復原與重做</div>
             <div class="help-item"><span class="help-item-label">↩ 復原</span><span>點擊可還原到上一次操作前的狀態，支援連續復原最多 20 步；批量操作亦可一步還原</span></div>
             <div class="help-item"><span class="help-item-label">↪ 重做</span><span>復原後可重新套用被復原的操作；執行任何新操作後，重做紀錄將清除</span></div>
             <div class="help-tip">按鈕呈半透明時表示目前無可復原／重做的步驟。重新整理頁面後，歷史記錄將清除，但桌次狀態仍會保留。</div>
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">十、結束本輪</div>
+            <div class="help-section-title">十一、結束本輪</div>
             <div class="help-item"><span class="help-item-label">強制結束本輪</span><span>仍有未完成桌次時，底部顯示此按鈕；點擊後確認即強制結束，清除紀錄並準備下一輪</span></div>
             <div class="help-item"><span class="help-item-label">確認本輪處理完畢</span><span>所有桌次皆為「已完成」時，按鈕自動切換為此模式；點擊後確認即清除紀錄並準備下一輪</span></div>
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">十一、離線與資料保存</div>
+            <div class="help-section-title">十二、離線與資料保存</div>
             <div class="help-item"><span class="help-item-label">自動儲存</span><span>所有狀態即時存於裝置，重新整理或關閉後自動恢復</span></div>
             <div class="help-item"><span class="help-item-label">離線可用</span><span>支援 PWA 安裝與完全離線使用，右上角顯示連線狀態</span></div>
           </div>
@@ -195,7 +206,10 @@
               <button id="btn-zoom-in" title="增加每列桌次">+</button>
               <button id="btn-zoom-out" class="disabled" title="減少每列桌次">−</button>
             </div>
-            <button id="btn-batch-complete" class="btn-filter btn-filter-complete">批量完成</button>
+            <div class="btn-group">
+              <button id="btn-batch-complete" class="btn-filter btn-filter-complete">批量完成</button>
+              <button id="btn-patrol-audit" class="btn-filter btn-filter-patrol">巡場盤點</button>
+            </div>
             <div class="btn-group">
               <button id="btn-hide-completed" class="btn-filter">隱藏完成</button>
               <button id="btn-overtime-filter" class="btn-filter">只顯示加時</button>
@@ -287,6 +301,17 @@
     <div class="filter-confirm-btns">
       <button id="btn-filter-confirm-cancel" class="btn-filter-confirm btn-filter-cancel">取消</button>
       <button id="btn-filter-confirm-ok" class="btn-filter-confirm btn-filter-ok">確認跳轉</button>
+    </div>
+  </div>
+
+  <!-- Patrol cross-segment scope confirmation dialog -->
+  <div id="patrol-scope-overlay" class="filter-confirm-overlay hidden"></div>
+  <div id="patrol-scope-popup" class="filter-confirm-popup patrol-scope-popup hidden">
+    <p id="patrol-scope-msg" class="filter-confirm-msg">偵測到其他範圍區段也有已選取的對戰中桌次，請選擇要設為「已完成」的結算範圍：</p>
+    <div class="patrol-scope-btns">
+      <button id="btn-patrol-scope-all" class="btn-filter-confirm btn-patrol-scope-all">全部區段</button>
+      <button id="btn-patrol-scope-current" class="btn-filter-confirm btn-patrol-scope-current">僅目前區段</button>
+      <button id="btn-patrol-scope-cancel" class="btn-filter-confirm btn-filter-cancel">取消</button>
     </div>
   </div>
 

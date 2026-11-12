@@ -575,6 +575,12 @@ body {
     color: var(--color-completed);
   }
 
+  /* "巡場盤點" button — active/assigned (amber-orange) accent */
+  .btn-filter-patrol:hover {
+    border-color: rgba(255, 165, 2, 0.55);
+    color: var(--color-assigned);
+  }
+
   /* "複製剩餘桌次資訊" button — blue accent */
   .btn-filter-copy:hover {
     border-color: rgba(63, 81, 181, 0.6);
@@ -1210,6 +1216,46 @@ body {
   background: rgba(46, 213, 115, 0.12) !important;
 }
 
+/* Locked completed cards in selection mode */
+#tracker-view.selection-mode .table-card.state-completed {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+#tracker-view.selection-mode .table-card.state-completed:hover,
+#tracker-view.selection-mode .table-card.state-completed:active {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.06);
+  opacity: 0.35;
+}
+
+/* Patrol Audit Mode styles */
+#tracker-view.patrol-mode .selection-count {
+  color: var(--color-assigned);
+}
+
+#tracker-view.patrol-mode .table-card-selected {
+  border-color: var(--color-assigned) !important;
+  background: rgba(255, 165, 2, 0.16) !important;
+  box-shadow: 0 0 12px var(--color-assigned-glow);
+}
+
+#tracker-view.patrol-mode .selection-check {
+  color: var(--color-assigned);
+}
+
+#tracker-view.patrol-mode .table-card.table-card-drag-anchor {
+  box-shadow: 0 0 12px var(--color-assigned-glow);
+}
+
+@media (hover: hover) {
+  #tracker-view.patrol-mode .btn-sel-shortcut:hover {
+    border-color: var(--color-assigned);
+    color: var(--color-assigned);
+    background: rgba(255, 165, 2, 0.08);
+  }
+}
+
 .card-grid.drag-selecting {
   user-select: none;
   -webkit-user-select: none;
@@ -1498,6 +1544,43 @@ body {
   }
   .btn-filter-ok:hover {
     filter: brightness(1.12);
+  }
+}
+
+/* Patrol cross-segment scope dialog */
+.patrol-scope-popup {
+  width: 280px;
+}
+
+.patrol-scope-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.patrol-scope-btns .btn-filter-confirm {
+  width: 100%;
+  text-align: center;
+  padding: 9px 14px;
+}
+
+.btn-patrol-scope-all {
+  background: var(--accent-gradient);
+  color: #fff;
+}
+
+.btn-patrol-scope-current {
+  background: rgba(255, 165, 2, 0.18);
+  border-color: rgba(255, 165, 2, 0.5);
+  color: var(--color-assigned);
+}
+
+@media (hover: hover) {
+  .btn-patrol-scope-all:hover {
+    filter: brightness(1.12);
+  }
+  .btn-patrol-scope-current:hover {
+    background: rgba(255, 165, 2, 0.28);
   }
 }
 
