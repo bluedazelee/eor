@@ -1397,24 +1397,30 @@ function buildOvertimeInfo() {
   return overtime.length > 0 ? overtime.join('\n') : null;
 }
 
-// Build the remaining-tables info string from incomplete tables
+// Build the remaining-tables info string from incomplete tables.
+// Stream / overtime / normal groups are mutually exclusive; the stream section is omitted when empty.
 function buildRemainingInfo() {
-  const remaining = state.tables.filter(t => t.state !== 'completed');
+  const remaining = state.tables
+    .filter(t => t.state !== 'completed')
+    .sort((a, b) => a.number - b.number);
+
+  const stream = remaining
+    .filter(t => t.isStream)
+    .map(t => t.overtimeMinutes !== null ? `${t.number}(+${t.overtimeMinutes}分)` : `${t.number}`);
 
   const overtime = remaining
-    .filter(t => t.overtimeMinutes !== null)
-    .sort((a, b) => a.number - b.number)
-    .map(t => t.isStream ? `${t.number}(直播+${t.overtimeMinutes}分)` : `${t.number}(+${t.overtimeMinutes}分)`);
+    .filter(t => !t.isStream && t.overtimeMinutes !== null)
+    .map(t => `${t.number}(+${t.overtimeMinutes}分)`);
 
   const normal = remaining
-    .filter(t => t.overtimeMinutes === null)
-    .sort((a, b) => a.number - b.number)
-    .map(t => t.isStream ? `${t.number}(直播)` : `${t.number}`);
+    .filter(t => !t.isStream && t.overtimeMinutes === null)
+    .map(t => `${t.number}`);
 
+  const streamSection = stream.length > 0 ? `\n\n剩餘直播桌：\n${stream.join('\n')}` : '';
   const overtimeStr = overtime.length > 0 ? overtime.join('\n') : '無';
   const normalStr = normal.length > 0 ? normal.join(', ') : '無';
 
-  return `${buildRangeInfo()}\n\n剩餘 ${remaining.length} 桌\n\n剩餘加時桌：\n${overtimeStr}\n\n剩餘一般桌：\n${normalStr}`;
+  return `${buildRangeInfo()}\n\n剩餘 ${remaining.length} 桌${streamSection}\n\n剩餘加時桌：\n${overtimeStr}\n\n剩餘一般桌：\n${normalStr}`;
 }
 
 // Copy text to clipboard with fallback for non-secure / offline contexts
@@ -1520,6 +1526,36 @@ btnCopyClose.addEventListener('click', (e) => {
 document.addEventListener('click', () => {
   hideCopyMenu();
 });
+
+// ==========================================================================
+// Info Detail Popup (view detail info without touching the clipboard)
+// ==========================================================================
+const btnShowInfo = document.getElementById('btn-show-info');
+const infoDetailOverlay = document.getElementById('info-detail-overlay');
+const infoDetailPopup = document.getElementById('info-detail-popup');
+const infoDetailContent = document.getElementById('info-detail-content');
+
+function showInfoDetail() {
+  infoDetailContent.textContent = buildRemainingInfo();
+  infoDetailContent.scrollTop = 0;
+  infoDetailOverlay.classList.remove('hidden');
+  infoDetailPopup.classList.remove('hidden');
+}
+
+function hideInfoDetail() {
+  infoDetailOverlay.classList.add('hidden');
+  infoDetailPopup.classList.add('hidden');
+}
+
+btnShowInfo.addEventListener('click', (e) => {
+  e.stopPropagation();
+  hideCopyMenu();
+  showInfoDetail();
+});
+
+document.getElementById('btn-info-detail-x').addEventListener('click', hideInfoDetail);
+document.getElementById('btn-info-detail-close').addEventListener('click', hideInfoDetail);
+infoDetailOverlay.addEventListener('click', hideInfoDetail);
 
 // ==========================================================================
 // Control Row Layout Sync

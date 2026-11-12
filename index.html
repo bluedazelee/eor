@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=25">
+  <link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
   <div class="app-container">
@@ -152,12 +152,13 @@
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">九、複製資訊</div>
+            <div class="help-section-title">九、複製與顯示資訊</div>
+            <div class="help-item"><span class="help-item-label">ℹ️</span><span>點擊後直接開啟視窗快速檢視當前「詳細資訊」，不會覆寫剪貼簿；點擊 ✕、「關閉」或視窗外部區域即可關閉</span></div>
             <div class="help-item"><span class="help-item-label">📋</span><span>點擊後展開複製選單，可選擇複製以下資訊至剪貼簿</span></div>
             <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製組別、輪次與桌號範圍，例：「大師A R1 1~50」</span></div>
             <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數（若為直播桌會標註如「1(直播+3分)」）；無加時桌時顯示提示</span></div>
             <div class="help-item"><span class="help-item-label">剩餘桌次</span><span>複製組別、輪次、桌號範圍及剩餘桌數，不含加時桌與一般桌明細</span></div>
-            <div class="help-item"><span class="help-item-label">詳細資訊</span><span>複製完整摘要：範圍、剩餘桌數、加時桌與一般桌清單（未完成的直播桌會標註「(直播)」）</span></div>
+            <div class="help-item"><span class="help-item-label">詳細資訊</span><span>複製完整摘要：範圍、剩餘桌數、直播桌、加時桌與一般桌清單；未完成的直播桌會獨立列於「剩餘直播桌：」區塊並排在加時桌之上（有加時顯示如「2(+3分)」），且不重複出現於加時桌與一般桌；無未完成直播桌時不顯示此區塊</span></div>
           </div>
 
           <div class="help-section">
@@ -217,6 +218,7 @@
               <button id="btn-overtime-filter" class="btn-filter">只顯示加時</button>
             </div>
             <div class="btn-group">
+              <button id="btn-show-info" class="btn-filter btn-filter-info" title="顯示詳細資訊">ℹ️</button>
               <button id="btn-copy-remaining" class="btn-filter btn-filter-copy">📋</button>
               <div id="copy-menu-popup" class="copy-menu-popup" style="display:none">
                 <button id="btn-copy-range" class="copy-menu-item">本輪範圍</button>
@@ -334,6 +336,14 @@
     <button id="btn-stream-toggle" class="btn-stream-toggle">📺 標記為直播桌</button>
   </div>
 
-  <script src="app.js?v=25"></script>
+  <!-- Info detail popup -->
+  <div id="info-detail-overlay" class="info-detail-overlay hidden"></div>
+  <div id="info-detail-popup" class="info-detail-popup hidden">
+    <div class="info-detail-title"><span>本輪詳細資訊</span><button id="btn-info-detail-x" class="btn-overtime-close" title="關閉">✕</button></div>
+    <pre id="info-detail-content" class="info-detail-content"></pre>
+    <button id="btn-info-detail-close" class="btn-info-detail-close">關閉</button>
+  </div>
+
+  <script src="app.js?v=26"></script>
 </body>
 </html>
