@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
   <div class="app-container">
@@ -82,27 +82,32 @@
             <div class="help-section-title">二、桌次狀態管理</div>
             <div class="help-item">
               <span class="help-item-label">單點卡片</span>
-              <span>循環切換三種狀態：<br>
+              <span>一般桌次循環切換三種狀態：<br>
                 <span class="state-chip state-chip-active">尚未結束</span> →
                 <span class="state-chip state-chip-assigned">已分配</span> →
                 <span class="state-chip state-chip-completed">已完成</span>
               </span>
             </div>
+            <div class="help-item">
+              <span class="help-item-label">直播桌切換</span>
+              <span>已標記為「📺 直播」的桌次，在一般模式下單點會直接於「尚未結束 ↔ 已完成」間二段切換（跳過「已分配」），並保留直播標記</span>
+            </div>
             <div class="help-tip">切換到「已分配」時，卡片會自動記錄當前時間（HH:MM）</div>
           </div>
 
           <div class="help-section">
-            <div class="help-section-title">三、加時桌標記</div>
-            <div class="help-item"><span class="help-item-label">長按卡片</span><span>按住 0.5 秒，開啟加時設定彈窗</span></div>
-            <div class="help-item"><span class="help-item-label">快速選擇</span><span>+3 / +6 / +9 分鐘</span></div>
+            <div class="help-section-title">三、加時與直播桌標記</div>
+            <div class="help-item"><span class="help-item-label">長按卡片</span><span>按住 0.5 秒，開啟桌次標記設定彈窗</span></div>
+            <div class="help-item"><span class="help-item-label">快速加時</span><span>+3 / +6 / +9 分鐘</span></div>
             <div class="help-item"><span class="help-item-label">自訂分鐘</span><span>輸入任意正整數，按「確認」</span></div>
-            <div class="help-item"><span class="help-item-label">清除標記</span><span>已設定加時時，彈窗內會出現「清除標記」</span></div>
-            <div class="help-tip">加時桌卡片上會顯示顏色徽章，顏色依加時長度區分：<span class="overtime-badge-demo overtime-badge-low">+3分</span> ≤ 3 分，<span class="overtime-badge-demo overtime-badge-mid">+6分</span> 4–6 分，<span class="overtime-badge-demo overtime-badge-high">+9分</span> &gt; 6 分</div>
+            <div class="help-item"><span class="help-item-label">清除加時</span><span>已設定加時時，彈窗內會出現「清除標記」</span></div>
+            <div class="help-item"><span class="help-item-label">直播桌標記</span><span>點擊彈窗下方「📺 標記為直播桌」可將該桌設為直播桌（再次點擊可取消）；標記為直播桌後，在「批量完成」與「巡場盤點」模式中皆會自動鎖定不被選取或自動完成，只能在一般模式下手動點選設為已完成（每輪結束後自動清空重設）</span></div>
+            <div class="help-tip">加時桌卡片上會顯示顏色徽章，顏色依加時長度區分：<span class="overtime-badge-demo overtime-badge-low">+3分</span> ≤ 3 分，<span class="overtime-badge-demo overtime-badge-mid">+6分</span> 4–6 分，<span class="overtime-badge-demo overtime-badge-high">+9分</span> &gt; 6 分；直播桌則顯示 <span class="overtime-badge-demo stream-badge-demo">📺 直播</span> 徽章</div>
           </div>
 
           <div class="help-section">
             <div class="help-section-title">四、儀表板統計</div>
-            <div class="help-item"><span class="help-item-label">進度條</span><span>即時顯示已完成桌數、百分比與剩餘桌數</span></div>
+            <div class="help-item"><span class="help-item-label">統計數據</span><span>上方即時顯示已完成桌數、完成百分比與剩餘桌數</span></div>
           </div>
 
           <div class="help-section">
@@ -125,24 +130,24 @@
           <div class="help-section">
             <div class="help-section-title">七、批量設為已完成</div>
             <div class="help-item"><span class="help-item-label">進入選取模式</span><span>點擊「批量完成」按鈕後，畫面進入選取模式；上方資訊列切換顯示輪次進度與已選桌數，下方顯示操作列</span></div>
-            <div class="help-item"><span class="help-item-label">鎖定已完成</span><span>選取模式中，「已完成」的桌次會自動鎖定不可選取（單點、滑選與反選皆自動略過已完成桌次）</span></div>
+            <div class="help-item"><span class="help-item-label">鎖定保護</span><span>選取模式中，「已完成」桌次與「📺 直播桌」會自動鎖定不可選取（單點、滑選、全選與反選皆自動略過）</span></div>
             <div class="help-item"><span class="help-item-label">篩選器可用</span><span>批次模式中仍可點擊資訊列右側的「隱藏」與「加時」篩選器，縮小目標範圍後再執行全選</span></div>
-            <div class="help-item"><span class="help-item-label">點選桌次</span><span>直接點擊未完成的桌號卡片切換選取狀態（綠框 ✓ 表示已選取），不影響桌次完成狀態</span></div>
-            <div class="help-item"><span class="help-item-label">滑動多選</span><span>短暫按住未完成卡片（約 0.2 秒）後滑動，可依起點狀態連續選取或取消選取區間內的未完成桌次（直接滑動則維持上下捲動畫面）。滑選時「尚未結束」與「已分配」視為相同狀態，已完成桌次會自動略過；手指未放開前往回滑可即時退回，滑至畫面上下邊緣時會自動捲動列表</span></div>
-            <div class="help-item"><span class="help-item-label">全選</span><span>一鍵選取目前顯示中所有尚未完成的桌次</span></div>
+            <div class="help-item"><span class="help-item-label">點選桌次</span><span>直接點擊一般未完成的桌號卡片切換選取狀態（綠框 ✓ 表示已選取），不影響桌次完成狀態</span></div>
+            <div class="help-item"><span class="help-item-label">滑動多選</span><span>短暫按住任意卡片（約 0.2 秒）後滑動，可連續選取或取消選取區間內的一般未完成桌次（若從已完成桌次或直播桌按住滑動，預設為「選取」模式並自動略過已完成與直播桌；直接滑動則維持上下捲動畫面）。手指未放開前往回滑可即時退回，滑至畫面上下邊緣時會自動捲動列表</span></div>
+            <div class="help-item"><span class="help-item-label">全選</span><span>一鍵選取目前顯示中所有尚未完成的一般桌次（自動跳過直播桌）</span></div>
             <div class="help-item"><span class="help-item-label">清除</span><span>取消所有已選取的桌次</span></div>
-            <div class="help-item"><span class="help-item-label">反選</span><span>僅針對目前顯示中尚未完成的桌次，將已選者取消、未選者加入（自動跳過已完成桌次）</span></div>
+            <div class="help-item"><span class="help-item-label">反選</span><span>僅針對目前顯示中尚未完成的一般桌次，將已選者取消、未選者加入（自動跳過已完成桌次與直播桌）</span></div>
             <div class="help-item"><span class="help-item-label">確認</span><span>將所有已選取的桌次標記為已完成；未選取的桌次狀態不變</span></div>
             <div class="help-tip">操作完成後可點擊「↩ 復原」一步還原整批標記；搭配篩選器可快速定位目標桌次</div>
           </div>
 
           <div class="help-section">
             <div class="help-section-title">八、巡場盤點（點選對戰中桌次）</div>
-            <div class="help-item"><span class="help-item-label">進入盤點模式</span><span>點擊「巡場盤點」按鈕進入盤點模式；上方資訊列顯示「對戰中 N 桌」，已完成桌次同樣鎖定不可選取</span></div>
-            <div class="help-item"><span class="help-item-label">點名對戰桌</span><span>直接點選（或短壓 0.2 秒滑選）場上仍在進行對戰的未完成桌次（橘框 ⏳ 表示對戰中保留）</span></div>
-            <div class="help-item"><span class="help-item-label">完成其餘桌次</span><span>按下「確認」後，系統會將目前顯示範圍內「未被選取」的所有未完成桌次一鍵設為「已完成」；被選取的對戰中桌次則維持其原本狀態（尚未結束或已分配）</span></div>
+            <div class="help-item"><span class="help-item-label">進入盤點模式</span><span>點擊「巡場盤點」按鈕進入盤點模式；上方資訊列顯示「對戰中 N 桌」，已完成桌次與直播桌同樣鎖定不可選取</span></div>
+            <div class="help-item"><span class="help-item-label">點名對戰桌</span><span>直接點選（或短壓 0.2 秒滑選）場上仍在進行對戰的一般未完成桌次（橘框 ⏳ 表示對戰中保留）</span></div>
+            <div class="help-item"><span class="help-item-label">完成其餘桌次</span><span>按下「確認」後，系統會將目前顯示範圍內「未被選取」的所有一般未完成桌次一鍵設為「已完成」；被選取的對戰中桌次與「📺 直播桌」則維持其原本狀態</span></div>
             <div class="help-item"><span class="help-item-label">跨區段結算</span><span>若使用範圍標籤在多個區段選取了對戰中桌次，切回「全部」按確認可一次結算全場；若停留在單一區段直接按「確認」，系統會彈出視窗讓您選擇結算「全部區段」或「僅目前區段」</span></div>
-            <div class="help-item"><span class="help-item-label">全場皆完賽</span><span>若巡場發現 0 桌仍在對戰，不選取任何桌次直接按「確認」，經二次確認提示後即可將目前顯示範圍內所有未完成桌次全部設為已完成</span></div>
+            <div class="help-item"><span class="help-item-label">全場皆完賽</span><span>若巡場發現 0 桌仍在對戰，不選取任何桌次直接按「確認」，經二次確認提示後即可將目前顯示範圍內除直播桌外的所有未完成桌次全部設為已完成</span></div>
             <div class="help-tip">巡場盤點同樣支援全選、清除、反選快捷鍵，結算後亦可點擊「↩ 復原」一步還原</div>
           </div>
 
@@ -150,9 +155,9 @@
             <div class="help-section-title">九、複製資訊</div>
             <div class="help-item"><span class="help-item-label">📋</span><span>點擊後展開複製選單，可選擇複製以下資訊至剪貼簿</span></div>
             <div class="help-item"><span class="help-item-label">本輪範圍</span><span>複製組別、輪次與桌號範圍，例：「大師A R1 1~50」</span></div>
-            <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數；無加時桌時顯示提示</span></div>
+            <div class="help-item"><span class="help-item-label">加時桌次</span><span>複製未完成的加時桌清單，含加時分鐘數（若為直播桌會標註如「1(直播+3分)」）；無加時桌時顯示提示</span></div>
             <div class="help-item"><span class="help-item-label">剩餘桌次</span><span>複製組別、輪次、桌號範圍及剩餘桌數，不含加時桌與一般桌明細</span></div>
-            <div class="help-item"><span class="help-item-label">詳細資訊</span><span>複製完整摘要：範圍、剩餘桌數、加時桌與一般桌清單</span></div>
+            <div class="help-item"><span class="help-item-label">詳細資訊</span><span>複製完整摘要：範圍、剩餘桌數、加時桌與一般桌清單（未完成的直播桌會標註「(直播)」）</span></div>
           </div>
 
           <div class="help-section">
@@ -192,9 +197,6 @@
               <span class="stats-divider">|</span>
               <span id="stats-remaining-count">剩餘 0 桌</span>
             </div>
-          </div>
-          <div class="progress-bar-container">
-            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
           </div>
           
           <div class="control-row">
@@ -315,7 +317,7 @@
     </div>
   </div>
 
-  <!-- Overtime marking popup (singleton) -->
+  <!-- Overtime & Stream marking popup (singleton) -->
   <div id="overtime-popup" class="overtime-popup hidden">
     <div id="overtime-popup-title" class="overtime-popup-title"><span>設定加時（分鐘）</span><button id="btn-overtime-close" class="btn-overtime-close">✕</button></div>
     <div class="overtime-quick-btns">
@@ -328,8 +330,10 @@
       <button id="btn-overtime-confirm">確認</button>
     </div>
     <button id="btn-overtime-clear" class="btn-overtime-clear hidden">清除標記</button>
+    <div class="overtime-popup-divider"></div>
+    <button id="btn-stream-toggle" class="btn-stream-toggle">📺 標記為直播桌</button>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=25"></script>
 </body>
 </html>

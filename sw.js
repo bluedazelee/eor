@@ -2,7 +2,7 @@
 // PTCG EoR Helper - Service Worker (sw.js)
 // ==========================================================================
 
-const CACHE_NAME = 'ptcg-eor-v24';
+const CACHE_NAME = 'ptcg-eor-v25';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -14,13 +14,15 @@ const ASSETS_TO_CACHE = [
   './icons/icon-512.png'
 ];
 
-// Install Event - caching core assets
+// Install Event - caching core assets (bypass HTTP disk cache with cache: 'reload')
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[Service Worker] 快取核心資源中...');
-        return cache.addAll(ASSETS_TO_CACHE);
+        return cache.addAll(
+          ASSETS_TO_CACHE.map(url => new Request(url, { cache: 'reload' }))
+        );
       })
       .then(() => self.skipWaiting()) // Force activation
   );
@@ -42,7 +44,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch Event - Cache-First Strategy
+// Fetch Event - Cache-First Strategy (ignore query strings like ?v=25)
 self.addEventListener('fetch', event => {
   // Only handle http/https requests, avoid chrome-extension schemes etc.
   if (!event.request.url.startsWith(self.location.origin)) {
@@ -50,7 +52,7 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
+    caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
       if (cachedResponse) {
         return cachedResponse;
       }

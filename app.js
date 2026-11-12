@@ -8,7 +8,7 @@ let state = {
   group: '大師A組',
   startTable: 1,
   endTable: 200,
-  tables: [] // Array of { number, state, assignedTime, overtimeMinutes }
+  tables: [] // Array of { number, state, assignedTime, overtimeMinutes, isStream }
 };
 
 // UI state (not persisted)
@@ -46,7 +46,6 @@ const displayRound = document.getElementById('display-round');
 const statsCompleteCount = document.getElementById('stats-complete-count');
 const statsPercentage = document.getElementById('stats-percentage');
 const statsRemainingCount = document.getElementById('stats-remaining-count');
-const progressBarFill = document.getElementById('progress-bar-fill');
 const btnHideCompleted = document.getElementById('btn-hide-completed');
 const cardGrid = document.getElementById('card-grid');
 const rangeFilterBar = document.getElementById('range-filter-bar');
@@ -117,6 +116,7 @@ const overtimePopupTitle = document.getElementById('overtime-popup-title');
 const overtimeCustomInput = document.getElementById('overtime-custom-input');
 const btnOvertimeConfirm = document.getElementById('btn-overtime-confirm');
 const btnOvertimeClear = document.getElementById('btn-overtime-clear');
+const btnStreamToggle = document.getElementById('btn-stream-toggle');
 const btnOvertimeClose = document.getElementById('btn-overtime-close');
 
 // ==========================================================================
@@ -124,6 +124,15 @@ const btnOvertimeClose = document.getElementById('btn-overtime-close');
 // ==========================================================================
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    let isRefreshing = false;
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || isRefreshing) return;
+      isRefreshing = true;
+      window.location.reload();
+    });
+
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js')
         .then(reg => {
@@ -174,9 +183,10 @@ function loadState() {
         state.roundNumber = m ? parseInt(m[1], 10) : 1;
       }
       if (state && state.tables && state.tables.length > 0) {
-        // Backward-compat: patch missing overtimeMinutes field
+        // Backward-compat: patch missing overtimeMinutes and isStream fields
         state.tables.forEach(t => {
           if (t.overtimeMinutes === undefined) t.overtimeMinutes = null;
+          if (t.isStream === undefined) t.isStream = false;
         });
         showTrackerView();
         renderTracker();
@@ -381,7 +391,8 @@ btnStart.addEventListener('click', () => {
       number: i,
       state: 'active',
       assignedTime: null,
-      overtimeMinutes: null
+      overtimeMinutes: null,
+      isStream: false
     });
   }
 
@@ -415,7 +426,7 @@ function renderTracker() {
     if (!passesOvertimeFilter || !passesCompletedFilter || !passesRangeFilter) return;
 
     const card = document.createElement('div');
-    card.className = `table-card state-${table.state}`;
+    card.className = `table-card state-${table.state}${table.isStream ? ' table-card-stream' : ''}`;
     card.dataset.num = table.number;
 
     const numSpan = document.createElement('span');
@@ -440,18 +451,32 @@ function renderTracker() {
     }
     card.appendChild(statusSpan);
 
-    // Overtime badge
-    if (table.overtimeMinutes !== null) {
-      const m = table.overtimeMinutes;
-      const tier = m <= 3 ? 'low' : m <= 6 ? 'mid' : 'high';
-      const badge = document.createElement('span');
-      badge.className = `overtime-badge overtime-badge-${tier}`;
-      badge.textContent = `+${m}分`;
-      card.appendChild(badge);
+    // Stream & Overtime badges
+    if (table.isStream || table.overtimeMinutes !== null) {
+      const badgesContainer = document.createElement('div');
+      badgesContainer.className = 'card-badges';
+
+      if (table.isStream) {
+        const streamBadge = document.createElement('span');
+        streamBadge.className = 'stream-badge';
+        streamBadge.textContent = '📺 直播';
+        badgesContainer.appendChild(streamBadge);
+      }
+
+      if (table.overtimeMinutes !== null) {
+        const m = table.overtimeMinutes;
+        const tier = m <= 3 ? 'low' : m <= 6 ? 'mid' : 'high';
+        const badge = document.createElement('span');
+        badge.className = `overtime-badge overtime-badge-${tier}`;
+        badge.textContent = `+${m}分`;
+        badgesContainer.appendChild(badge);
+      }
+
+      card.appendChild(badgesContainer);
     }
 
-    // Selection mode overlay (completed tables are locked and never selected)
-    if (isSelectionMode && table.state !== 'completed' && selectedTables.has(table.number)) {
+    // Selection mode overlay (completed and stream tables are locked and never selected)
+    if (isSelectionMode && table.state !== 'completed' && !table.isStream && selectedTables.has(table.number)) {
       syncCardSelectionDOM(card, true);
     }
 
@@ -462,7 +487,7 @@ function renderTracker() {
           suppressNextSelectionClick = false;
           return;
         }
-        if (table.state === 'completed') {
+        if (table.state === 'completed' || table.isStream) {
           return;
         }
         const nextSelected = !selectedTables.has(table.number);
@@ -493,7 +518,6 @@ function renderTracker() {
   statsCompleteCount.textContent = `已完成 ${completedCount} / ${totalCount} 桌`;
   statsPercentage.textContent = `(${progressPercent}%)`;
   statsRemainingCount.textContent = `剩餘 ${totalCount - completedCount} 桌`;
-  progressBarFill.style.width = `${progressPercent}%`;
 
   if (completedCount === totalCount && totalCount > 0) {
     btnFinishRound.className = 'btn btn-success';
@@ -514,14 +538,23 @@ function renderTracker() {
   }
 }
 
-// Cycle states: active -> assigned -> completed -> active
+// Cycle states:
+// - Normal table: active -> assigned -> completed -> active
+// - Stream table: active <-> completed (skipping assigned, preserving isStream)
 function cycleCardState(tableNumber) {
   const table = state.tables.find(t => t.number === tableNumber);
   if (!table) return;
 
   commitState();
 
-  if (table.state === 'active') {
+  if (table.isStream) {
+    if (table.state === 'completed') {
+      table.state = 'active';
+    } else {
+      table.state = 'completed';
+    }
+    table.assignedTime = null;
+  } else if (table.state === 'active') {
     table.state = 'assigned';
     const now = new Date();
     table.assignedTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -612,6 +645,20 @@ function setOvertime(tableNumber, value) {
   renderTracker();
 }
 
+function toggleStreamTable(tableNumber) {
+  const table = state.tables.find(t => t.number === tableNumber);
+  if (!table) return;
+  commitState();
+  table.isStream = !table.isStream;
+  if (table.isStream && table.state === 'assigned') {
+    table.state = 'active';
+    table.assignedTime = null;
+  }
+  selectedTables.delete(table.number);
+  saveState();
+  renderTracker();
+}
+
 let _popupTargetTable = null;
 let _outsideClickHandler = null;
 
@@ -620,6 +667,7 @@ function showOvertimePopup(tableNumber) {
 
   const table = state.tables.find(t => t.number === tableNumber);
   const hasMark = table && table.overtimeMinutes !== null;
+  const isStream = Boolean(table && table.isStream);
 
   // Reset input
   overtimeCustomInput.value = '';
@@ -629,6 +677,12 @@ function showOvertimePopup(tableNumber) {
 
   // Show/hide clear button
   btnOvertimeClear.classList.toggle('hidden', !hasMark);
+
+  // Update stream toggle button
+  if (btnStreamToggle) {
+    btnStreamToggle.textContent = isStream ? '📺 取消直播桌標記' : '📺 標記為直播桌';
+    btnStreamToggle.classList.toggle('active', isStream);
+  }
 
   // Centered via CSS (.overtime-popup), no coordinate calculation needed
   overtimePopup.classList.remove('hidden');
@@ -675,6 +729,12 @@ btnOvertimeConfirm.addEventListener('click', () => {
 // Bind clear button
 btnOvertimeClear.addEventListener('click', () => {
   if (_popupTargetTable !== null) setOvertime(_popupTargetTable, null);
+  closeOvertimePopup();
+});
+
+// Bind stream toggle button
+btnStreamToggle.addEventListener('click', () => {
+  if (_popupTargetTable !== null) toggleStreamTable(_popupTargetTable);
   closeOvertimePopup();
 });
 
@@ -753,7 +813,7 @@ let dragAutoScrollRaf = null;
 function getIncompleteTableNums(ignoreRangeTab = false) {
   return state.tables
     .filter(table => {
-      if (table.state === 'completed') return false;
+      if (table.state === 'completed' || table.isStream) return false;
       const passesOvertimeFilter = showOvertimeOnly ? table.overtimeMinutes !== null : true;
       const passesRangeFilter = (!ignoreRangeTab && activeRangeTab)
         ? (table.number >= activeRangeTab.start && table.number <= activeRangeTab.end)
@@ -846,7 +906,7 @@ function applyDragRangeSelection(endIndex) {
 
   for (let i = minIdx; i <= maxIdx; i++) {
     const item = dragVisibleCards[i];
-    if (!item.isCompleted) {
+    if (!item.isLocked) {
       if (dragTargetSelected) {
         selectedTables.add(item.num);
       } else {
@@ -856,7 +916,7 @@ function applyDragRangeSelection(endIndex) {
   }
 
   dragVisibleCards.forEach(item => {
-    if (!item.isCompleted) {
+    if (!item.isLocked) {
       syncCardSelectionDOM(item.card, selectedTables.has(item.num));
     }
   });
@@ -946,7 +1006,6 @@ cardGrid.addEventListener('pointerdown', e => {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const card = e.target.closest('.table-card');
   if (!card || !cardGrid.contains(card)) return;
-  if (card.classList.contains('state-completed')) return;
 
   cleanupDragSelection(false);
   dragStartX = e.clientX;
@@ -957,15 +1016,14 @@ cardGrid.addEventListener('pointerdown', e => {
   dragHoldTimer = setTimeout(() => {
     dragHoldTimer = null;
     if (!isSelectionMode) return;
-    if (card.classList.contains('state-completed')) return;
 
     dragVisibleCards = Array.from(cardGrid.querySelectorAll('.table-card')).map(el => ({
       card: el,
       num: parseInt(el.dataset.num, 10),
-      isCompleted: el.classList.contains('state-completed')
+      isLocked: el.classList.contains('state-completed') || el.classList.contains('table-card-stream')
     }));
     dragStartIndex = dragVisibleCards.findIndex(item => item.card === card);
-    if (dragStartIndex === -1 || dragVisibleCards[dragStartIndex].isCompleted) return;
+    if (dragStartIndex === -1) return;
 
     isDragSelecting = true;
     suppressNextSelectionClick = true;
@@ -977,7 +1035,7 @@ cardGrid.addEventListener('pointerdown', e => {
 
     dragInitialSelection = new Set(selectedTables);
     const startItem = dragVisibleCards[dragStartIndex];
-    dragTargetSelected = !dragInitialSelection.has(startItem.num);
+    dragTargetSelected = startItem.isLocked ? true : !dragInitialSelection.has(startItem.num);
 
     applyDragRangeSelection(dragStartIndex);
   }, DRAG_HOLD_MS);
@@ -1108,7 +1166,7 @@ btnSelectionConfirm.addEventListener('click', () => {
   if (selectedTables.size === 0) return;
   commitState();
   state.tables.forEach(t => {
-    if (t.state !== 'completed' && selectedTables.has(t.number)) {
+    if (t.state !== 'completed' && !t.isStream && selectedTables.has(t.number)) {
       t.state = 'completed';
     }
   });
@@ -1134,7 +1192,7 @@ patrolScopeOverlay.addEventListener('click', closePatrolScopeDialog);
 
 btnSelectAllIncomplete.addEventListener('click', () => {
   const visibleIncomplete = Array.from(cardGrid.querySelectorAll('.table-card'))
-    .filter(card => !card.classList.contains('state-completed'))
+    .filter(card => !card.classList.contains('state-completed') && !card.classList.contains('table-card-stream'))
     .map(card => parseInt(card.dataset.num, 10));
   visibleIncomplete.forEach(n => selectedTables.add(n));
   updateSelectionBar();
@@ -1149,7 +1207,7 @@ btnSelectClear.addEventListener('click', () => {
 
 btnSelectInvert.addEventListener('click', () => {
   const visibleIncompleteNums = Array.from(cardGrid.querySelectorAll('.table-card'))
-    .filter(card => !card.classList.contains('state-completed'))
+    .filter(card => !card.classList.contains('state-completed') && !card.classList.contains('table-card-stream'))
     .map(card => parseInt(card.dataset.num, 10));
   visibleIncompleteNums.forEach(n => {
     if (selectedTables.has(n)) selectedTables.delete(n);
@@ -1335,7 +1393,7 @@ function buildOvertimeInfo() {
   const overtime = state.tables
     .filter(t => t.state !== 'completed' && t.overtimeMinutes !== null)
     .sort((a, b) => a.number - b.number)
-    .map(t => `${t.number}(+${t.overtimeMinutes}分)`);
+    .map(t => t.isStream ? `${t.number}(直播+${t.overtimeMinutes}分)` : `${t.number}(+${t.overtimeMinutes}分)`);
   return overtime.length > 0 ? overtime.join('\n') : null;
 }
 
@@ -1346,12 +1404,12 @@ function buildRemainingInfo() {
   const overtime = remaining
     .filter(t => t.overtimeMinutes !== null)
     .sort((a, b) => a.number - b.number)
-    .map(t => `${t.number}(+${t.overtimeMinutes}分)`);
+    .map(t => t.isStream ? `${t.number}(直播+${t.overtimeMinutes}分)` : `${t.number}(+${t.overtimeMinutes}分)`);
 
   const normal = remaining
     .filter(t => t.overtimeMinutes === null)
     .sort((a, b) => a.number - b.number)
-    .map(t => `${t.number}`);
+    .map(t => t.isStream ? `${t.number}(直播)` : `${t.number}`);
 
   const overtimeStr = overtime.length > 0 ? overtime.join('\n') : '無';
   const normalStr = normal.length > 0 ? normal.join(', ') : '無';
